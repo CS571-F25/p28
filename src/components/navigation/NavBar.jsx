@@ -40,9 +40,6 @@ export default function NavBar() {
 
         {/* Nav Links */}
         <Nav className="gap-5">
-          <Nav.Link as={Link} to="/">
-            Home
-          </Nav.Link>
           <Nav.Link as={Link} to="/calendar">
             Weekly Calendar
           </Nav.Link>
