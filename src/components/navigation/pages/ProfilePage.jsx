@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button, Card, Image } from "react-bootstrap";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ProfilePage() {
   const [name, setName] = useState("");
   const [year, setYear] = useState("");
   const [interests, setInterests] = useState("");
+  const auth = useAuth();
+  const [completed, setCompleted] = useState(() => (auth ? auth.getCompleted() : 0));
+
+  useEffect(() => {
+    setCompleted(auth ? auth.getCompleted() : 0);
+  }, [auth?.user]);
 
   return (
     <div
@@ -61,6 +68,7 @@ export default function ProfilePage() {
             <p><strong>Name:</strong> {name || "—"}</p>
             <p><strong>Year:</strong> {year || "—"}</p>
             <p><strong>Interests:</strong> {interests || "—"}</p>
+            <p><strong>Tasks Completed:</strong> {completed ?? 0}</p>
           </div>
         </Card.Body>
       </Card>
