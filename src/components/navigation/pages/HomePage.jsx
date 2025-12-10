@@ -2,17 +2,19 @@ import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import TaskCard from "../../TaskCard";
 import { useAuth } from "../../../contexts/AuthContext";
+import paintBucketIcon from "../../../assets/paint-bucket.svg";
 
 export default function HomePage() {
   const auth = useAuth();
   const [tasks, setTasks] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [openColorPickerId, setOpenColorPickerId] = useState(null);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
     dueDate: "",
-    color: "#ffffff",   // class color
-    className: "",      // new field
+    color: "#ffffff",   
+    className: "",      
   });
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function HomePage() {
     if (!auth.user) return alert("Please log in to save tasks to your account.");
 
     const className = (newTask.className || "").trim();
-    const classColor = newTask.color || "#ffffff";
+    let classColor = "#ffffff";
 
     let updatedColumns = columns || [];
     let classColumn = null;
@@ -78,13 +80,14 @@ export default function HomePage() {
         classColumn = {
           id: `col-${Date.now()}`,
           title: className,
-          color: classColor,
+          color: "#ffffff",
         };
         updatedColumns = [...updatedColumns, classColumn];
         setColumns(updatedColumns);
         auth.setColumns(updatedColumns);
       }
       status = classColumn.id;
+      classColor = classColumn.color;
     }
 
     // New tasks start attached to their class column (if given), otherwise unsorted
@@ -93,9 +96,9 @@ export default function HomePage() {
       title: newTask.title,
       description: newTask.description,
       dueDate: newTask.dueDate,
-      status,                 // column id if class given
-      color: classColor,      // use class color for the task
-      className: className,   // store class name on the task as well
+      status,                 
+      color: classColor,      
+      className: className,   
     };
 
     const updated = auth.addTask(task);
@@ -183,15 +186,6 @@ export default function HomePage() {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-2" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <label style={{ margin: 0 }}>Class color:</label>
-                <input
-                  type="color"
-                  value={newTask.color || '#ffffff'}
-                  onChange={(e) => setNewTask({ ...newTask, color: e.target.value })}
-                />
-              </Form.Group>
-
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <Button variant="primary" type="submit">Add Task</Button>
               </div>
@@ -243,7 +237,7 @@ export default function HomePage() {
                   onDrop={(e) => handleDrop(e, col.id)}
                   style={{ minWidth: 260, minHeight: 200, background: "var(--color-secondary)", borderTop: `${col.color} solid 4px` || "#ffffff", padding: "0.75rem", borderRadius: 6 }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8, marginRight: 24 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8, marginRight: 24, position: "relative" }}>
                     <input
                       value={col.title}
                       onChange={(e) => {
@@ -253,6 +247,64 @@ export default function HomePage() {
                       }}
                       style={{ textAlign: "center", border: "none", background: "transparent", fontSize: 16, fontWeight: 600 }}
                     />
+                    <button
+                      onClick={() => setOpenColorPickerId(openColorPickerId === col.id ? null : col.id)}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 4,
+                        background: "transparent",
+                        border: "none",
+                        cursor: 'pointer',
+                        padding: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
+                      title="Click to change color"
+                    >
+                      <img src={paintBucketIcon} alt="color picker" style={{ width: 20, height: 20, filter: `hue-rotate(${Math.floor(Math.random() * 360)}deg)` }} />
+                    </button>
+                    {openColorPickerId === col.id && (
+                      <div style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        marginTop: 8,
+                        background: "#fff",
+                        border: "1px solid #ddd",
+                        borderRadius: 6,
+                        padding: 8,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                        zIndex: 1000,
+                        display: "flex",
+                        gap: 6,
+                        flexWrap: "wrap",
+                        width: 180
+                      }}>
+                        {['#992800', '#ffaf00', '#fc7942', '#99bd3c', '	#0b427a', '#8a50d8', '#ee5091', '#483e62', '#978131', '#5c5c57'].map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => {
+                              const updated = columns.map((c) => (c.id === col.id ? { ...c, color } : c));
+                              setColumns(updated);
+                              auth.setColumns(updated);
+                              setOpenColorPickerId(null);
+                            }}
+                            style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: 3,
+                              background: color,
+                              border: col.color === color ? '3px solid #000' : '1px solid #ccc',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
+                    )}
                     <div style={{ marginLeft: 6 }}>
                       <Button size="sm" variant="danger" onClick={() => handleDeleteTab(col.id)}>Delete</Button>
                     </div>
