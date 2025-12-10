@@ -64,42 +64,78 @@ export default function TaskCard({
       onMouseEnter={() => (compact || tiny) && setMenuOpen(true)}
       onMouseLeave={() => (compact || tiny) && setMenuOpen(false)}
     >
-      <Card.Body style={{ ...bodyStyle, position: "relative" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          {/* Left side: color flag + title */}
+      <Card.Body style={{ ...bodyStyle, position: "relative", display: "flex", flexDirection: "column" }}>
+        {/* Top section: title, description, dueDate */}
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              flex: 1,
-              minWidth: 0,
               gap: 6,
             }}
           >
-            {color && (
-              <span
-                aria-hidden="true"
-                style={{
-                  width: tiny ? 8 : 10,
-                  height: tiny ? 8 : 10,
-                  borderRadius: 999,
-                  backgroundColor: color,
-                  flexShrink: 0,
-                  boxShadow: "0 0 2px rgba(0,0,0,0.25)",
-                }}
-              />
-            )}
-            <span style={titleStyle}>{title}</span>
+            {/* Left side: color flag + title */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flex: 1,
+                minWidth: 0,
+                gap: 6,
+              }}
+            >
+              {color && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: tiny ? 8 : 10,
+                    height: tiny ? 8 : 10,
+                    borderRadius: 999,
+                    backgroundColor: color,
+                    flexShrink: 0,
+                    boxShadow: "0 0 2px rgba(0,0,0,0.25)",
+                  }}
+                />
+              )}
+              <span style={titleStyle}>{title}</span>
+            </div>
           </div>
 
-          {/* Right side: actions (menu or inline) */}
+          {showDescription && description && !compact && !tiny && (
+            <div
+              style={{
+                marginTop: "0.25rem",
+                fontSize: "0.9rem",
+                color: "#555",
+              }}
+            >
+              {description}
+            </div>
+          )}
+
+          {dueDate && !tiny && (
+            <div
+              style={{
+                marginTop: "0.12rem",
+                fontSize: "0.8rem",
+                color: "#888",
+              }}
+            >
+              Due: {dueDate}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom section: action buttons */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 6,
+            marginTop: "0.5rem",
+          }}
+        >
           {useMenu ? (
             <div style={{ position: "relative" }}>
               <button
@@ -239,30 +275,6 @@ export default function TaskCard({
             </div>
           )}
         </div>
-
-        {showDescription && description && !compact && !tiny && (
-          <div
-            style={{
-              marginTop: "0.25rem",
-              fontSize: "0.9rem",
-              color: "#555",
-            }}
-          >
-            {description}
-          </div>
-        )}
-
-        {dueDate && !tiny && (
-          <div
-            style={{
-              marginTop: "0.12rem",
-              fontSize: "0.8rem",
-              color: "#888",
-            }}
-          >
-            Due: {dueDate}
-          </div>
-        )}
       </Card.Body>
     </Card>
   );
