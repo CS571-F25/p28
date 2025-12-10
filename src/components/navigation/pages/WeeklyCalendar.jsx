@@ -1,116 +1,438 @@
-import { useEffect, useState } from "react";
-import { Button, Container } from "react-bootstrap";
+import { useEffect, useState, useMemo } from "react";
+import { Container } from "react-bootstrap";
 import TaskCard from "../../TaskCard";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function WeeklyCalendar() {
   const auth = useAuth();
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   const [tasks, setTasks] = useState([]);
-  const [showAddTask, setShowAddTask] = useState(false);
-  const [selectedTaskId, setSelectedTaskId] = useState("");
-  const [selectedDay, setSelectedDay] = useState(days[0]);
+  const [columns, setColumns] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
-    if (auth.user) setTasks(auth.getTasks() || []);
-    else setTasks([]);
+    if (auth.user) {
+      setTasks(auth.getTasks() || []);
+      setColumns(auth.getColumns() || []);
+    } else {
+      setTasks([]);
+      setColumns([]);
+    }
   }, [auth.user]);
 
-  const allowDrop = (e) => e.preventDefault();
+  // Utility: format Date -> "YYYY-MM-DD" (matches <input type="date">)
+  const toISODate = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
-  const handleDropToDay = (e, dayName) => {
-    e.preventDefault();
-    const idStr = e.dataTransfer.getData("text/plain");
-    if (!idStr) return;
-    const id = Number(idStr);
-    const updated = auth.updateTaskById(id, { day: dayName });
+  // Week range based on selected date (Sunday–Saturday)
+  const weekInfo = useMemo(() => {
+    const base = new Date(selectedDate);
+    const start = new Date(base);
+    start.setHours(0, 0, 0, 0);
+    start.setDate(base.getDate() - base.getDay()); // move back to Sunday
+
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      days.push(d);
+    }
+
+    const end = new Date(days[6]);
+    end.setHours(23, 59, 59, 999);
+
+    return { start, end, days };
+  }, [selectedDate]);
+
+  // Tasks that fall within the selected week (based on dueDate)
+  const tasksByDate = useMemo(() => {
+    const map = {};
+    for (const d of weekInfo.days) {
+      map[toISODate(d)] = [];
+    }
+
+    tasks.forEach((t) => {
+      if (!t.dueDate) return;
+      const key = t.dueDate;
+      if (map[key]) map[key].push(t);
+    });
+
+    return map;
+  }, [tasks, weekInfo, toISODate]);
+
+  const getClassForTask = (task) =>
+    columns.find((c) => c.id === task.status) || null;
+
+  const handleDeleteTask = (taskId) => {
+    const existing = auth.getTasks();
+    const idx = existing.findIndex((t) => t.id === taskId);
+    if (idx === -1) return;
+    const updated = auth.deleteTask(idx);
     setTasks(updated);
   };
 
-  const handleAssignSelected = () => {
-    if (!selectedTaskId) return;
-    const id = Number(selectedTaskId);
-    const updated = auth.updateTaskById(id, { day: selectedDay });
+  const handleCompleteTask = (taskId) => {
+    const updated = auth.completeTaskById(taskId);
     setTasks(updated);
-    setShowAddTask(false);
-    setSelectedTaskId("");
   };
 
-  // tasks assigned to a given day
-  const tasksForDay = (dayName) => tasks.filter((t) => t.day === dayName);
+  const formatDayHeading = (date) => {
+    const d = new Date(date);
+    return d.toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "numeric",
+      day: "numeric",
+    });
+  };
+
+  const weekLabel = (() => {
+    const { start, end } = weekInfo;
+    const opts = { month: "short", day: "numeric" };
+    return `${start.toLocaleDateString(undefined, opts)} – ${end.toLocaleDateString(undefined, opts)}`;
+  })();
+
+  const monthLabel = (() => {
+    const d = selectedDate;
+    return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  })();
 
   return (
-    <Container fluid style={{ padding: 0, minHeight: '100vh' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        {/* Header: title + Add Task button (opens selector) */}
-        <div style={{ borderBottom: '1px solid #e6e6e6', padding: 12, background: '#f5f7fa', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h4 style={{ margin: 0, color: '#333' }}>Weekly Calendar</h4>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Button onClick={() => setShowAddTask((s) => !s)} variant="primary">Add Task</Button>
+    <Container fluid style={{ padding: 0, minHeight: "100vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Header */}
+        <div
+          style={{
+            borderBottom: "1px solid #e6e6e6",
+            padding: 12,
+            background: "var(--color-background-alt)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <div>
+            <h4 style={{ margin: 0, color: "var(--color-primary)" }}>Weekly Calendar</h4>
+            <div style={{ fontSize: 13, color: "#888" }}>{weekLabel}</div>
           </div>
+          <div style={{ fontSize: 13, color: "#888" }}>{monthLabel}</div>
         </div>
 
-        {/* Add Task selector panel */}
-        {showAddTask && (
-          <div style={{ padding: 12, background: '#fff', borderBottom: '1px solid #eee', display: 'flex', gap: 8, alignItems: 'center' }}>
-            <label style={{ color: '#666' }}>Select task:</label>
-            <select value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)} style={{ minWidth: 220, padding: 6 }}>
-              <option value="">-- choose a task --</option>
-              {tasks.map((t) => (
-                <option key={t.id} value={t.id}>{t.title}{t.day ? ` (on ${t.day})` : ''}</option>
-              ))}
-            </select>
-
-            <label style={{ color: '#666' }}>Day:</label>
-            <select value={selectedDay} onChange={(e) => setSelectedDay(e.target.value)} style={{ padding: 6 }}>
-              {days.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-
-            <Button variant="success" onClick={handleAssignSelected} disabled={!selectedTaskId}>Assign</Button>
-            <Button variant="outline-secondary" onClick={() => { setShowAddTask(false); setSelectedTaskId(""); }}>Cancel</Button>
+        {/* Content: left (month grid), right (week tasks) */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            padding: 12,
+            gap: 16,
+            overflow: "hidden",
+          }}
+        >
+          {/* Left: Month grid */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: "var(--color-background)",
+              border: "1px solid #e5e7eb",
+              borderRadius: 8,
+              padding: 12,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+              This month
+            </div>
+            <MonthCalendarGrid
+              tasks={tasks}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
           </div>
-        )}
 
-        {/* Calendar grid */}
-        <div style={{ flex: 1, padding: 12, overflow: 'auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 12, width: '100%', height: '100%' }}>
-            {days.map((d) => (
-              <div key={d} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 8, background: '#fff', minWidth: 0, display: 'flex', flexDirection: 'column', maxHeight: '100%' }} onDragOver={allowDrop} onDrop={(e) => handleDropToDay(e, d)}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <strong style={{ color: '#666' }}>{d}</strong>
-                  <Button size="sm" variant="outline-secondary" onClick={() => {
-                    // unassign all tasks from this day
-                    const updated = tasks.map((t) => (t.day === d ? { ...t, day: null } : t));
-                    auth.setTasks(updated);
-                    setTasks(updated);
-                  }}>Clear</Button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
-                  {tasksForDay(d).map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        title={task.title}
-                        // hide description in calendar view and use compact/tiny styling
-                        description={task.description}
-                        showDescription={false}
-                        compact={true}
-                        tiny={true}
-                        inlineActions={true}
-                        onDelete={() => { const idx = auth.getTasks().findIndex((t) => t.id === task.id); auth.deleteTask(idx); setTasks(auth.getTasks()); }}
-                        onComplete={() => { const updated = auth.completeTaskById(task.id); setTasks(updated); }}
-                        draggable={true}
-                        onDragStart={(e) => e.dataTransfer.setData('text/plain', String(task.id))}
-                        color={task.color}
-                      />
-                  ))}
-                </div>
-              </div>
-            ))}
+          {/* Right: Week tasks (scrollable) */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: "var(--color-background)",
+              border: "1px solid #e5e7eb",
+              borderRadius: 8,
+              padding: 12,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+              Tasks this week
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
+              {weekInfo.days.map((d) => {
+                const iso = toISODate(d);
+                const dayTasks = tasksByDate[iso] || [];
+                return (
+                  <div
+                    key={iso}
+                    style={{
+                      marginBottom: 12,
+                      borderBottom: "1px dashed #e5e7eb",
+                      paddingBottom: 8,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#4b5563",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {formatDayHeading(d)}
+                    </div>
+                    {dayTasks.length === 0 ? (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "#9ca3af",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        No tasks
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 6,
+                        }}
+                      >
+                        {dayTasks.map((task) => {
+                          const cls = getClassForTask(task);
+                          const classColor =
+                            cls?.color || task.color || "var(--color-primary)";
+                          return (
+                            <TaskCard
+                              key={task.id}
+                              title={task.title}
+                              description={task.description}
+                              showDescription={false}
+                              compact={true}
+                              tiny={true}
+                              inlineActions={true}
+                              onDelete={() => handleDeleteTask(task.id)}
+                              onComplete={() => handleCompleteTask(task.id)}
+                              color={classColor}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
     </Container>
+  );
+}
+
+/**
+ * MonthCalendarGrid
+ * - Shows the current month in a grid.
+ * - Each day is a square with GitHub-like shading based on # of tasks with that dueDate.
+ * - Clicking a day selects it (drives the weekly view).
+ */
+function MonthCalendarGrid({ tasks, selectedDate, onSelectDate }) {
+  const today = new Date();
+  const baseMonth = new Date(
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
+    1
+  );
+  const year = baseMonth.getFullYear();
+  const month = baseMonth.getMonth(); // 0-11
+
+  // Utility: Date -> "YYYY-MM-DD"
+  const toISODate = (date) => {
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dd}`;
+  };
+
+  // Count tasks per date (for this month)
+  const taskCounts = useMemo(() => {
+    const counts = {};
+    tasks.forEach((t) => {
+      if (!t.dueDate) return;
+      // Only consider tasks in this month (for shading)
+      const d = new Date(t.dueDate);
+      if (d.getFullYear() === year && d.getMonth() === month) {
+        counts[t.dueDate] = (counts[t.dueDate] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [tasks, year, month]);
+
+  const firstDayOfMonth = new Date(year, month, 1);
+  const firstWeekday = firstDayOfMonth.getDay(); // 0-Sun .. 6-Sat
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const cells = [];
+  // Leading blanks
+  for (let i = 0; i < firstWeekday; i++) {
+    cells.push(null);
+  }
+  // Actual days
+  for (let day = 1; day <= daysInMonth; day++) {
+    cells.push(new Date(year, month, day));
+  }
+  // Trailing blanks to complete rows of 7
+  while (cells.length % 7 !== 0) {
+    cells.push(null);
+  }
+
+  const rows = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    rows.push(cells.slice(i, i + 7));
+  }
+
+  const selectedISO = toISODate(selectedDate);
+
+  const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+  const getShade = (count) => {
+    if (!count || count <= 0) return { bg: "transparent", opacity: 1 };
+
+    // 1 -> light, 2 -> medium, 3+ -> strong
+    if (count === 1) return { bg: "var(--color-primary)", opacity: 0.25 };
+    if (count === 2) return { bg: "var(--color-primary)", opacity: 0.6 };
+    return { bg: "var(--color-primary)", opacity: 1 };
+  };
+
+  const isSameDay = (d1, d2) =>
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate();
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {/* Weekday header row */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7, 1fr)",
+          gap: 4,
+          fontSize: 11,
+          color: "#ffffffff",
+          marginBottom: 4,
+        }}
+      >
+        {weekdayLabels.map((label) => (
+          <div
+            key={label}
+            style={{
+              textAlign: "center",
+            }}
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+
+      {/* Days grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7, 1fr)",
+          gap: 4,
+        }}
+      >
+        {rows.map((row, rowIndex) =>
+          row.map((cellDate, colIndex) => {
+            if (!cellDate) {
+              return (
+                <div
+                  key={`empty-${rowIndex}-${colIndex}`}
+                  style={{
+                    width: "100%",
+                    paddingTop: "100%",
+                    borderRadius: 4,
+                    background: "transparent",
+                  }}
+                />
+              );
+            }
+
+            const iso = toISODate(cellDate);
+            const count = taskCounts[iso] || 0;
+            const shade = getShade(count);
+
+            const isToday = isSameDay(cellDate, today);
+            const isSelected = iso === selectedISO;
+
+            return (
+              <button
+                key={iso}
+                type="button"
+                onClick={() => onSelectDate(new Date(cellDate))}
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  paddingTop: "100%", // square
+                  borderRadius: 4,
+                  border: isSelected
+                    ? "2px solid var(--color-primary)"
+                    : "1px solid #e5e7eb",
+                  background: shade.bg,
+                  opacity: shade.opacity,
+                  cursor: "pointer",
+                  outline: "none",
+                }}
+              >
+                {/* Day number */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 2,
+                    left: 3,
+                    fontSize: 10,
+                    color: count ? "#f9fafb" : "#6b7280",
+                    textShadow: count ? "0 0 2px rgba(0,0,0,0.6)" : "none",
+                  }}
+                >
+                  {cellDate.getDate()}
+                </div>
+
+                {/* Today dot */}
+                {isToday && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 3,
+                      right: 3,
+                      width: 6,
+                      height: 6,
+                      borderRadius: "999px",
+                      background: "var(--color-success)",
+                      boxShadow: "0 0 4px var(--color-success)",
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })
+        )}
+      </div>
+    </div>
   );
 }

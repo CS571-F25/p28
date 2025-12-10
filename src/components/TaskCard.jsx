@@ -52,7 +52,7 @@ export default function TaskCard({
         marginBottom: tiny ? "0.125rem" : compact ? "0.375rem" : "0.5rem",
         textAlign: "left",
         cursor: draggable ? "grab" : "default",
-        background: color || undefined,
+        // no longer using color as background
       }}
       draggable={draggable}
       onDragStart={onDragStart}
@@ -60,24 +60,105 @@ export default function TaskCard({
       onMouseLeave={() => (compact || tiny) && setMenuOpen(false)}
     >
       <Card.Body style={{ ...bodyStyle, position: "relative" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={titleStyle}>{title}</span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          {/* Left side: color flag + title */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flex: 1,
+              minWidth: 0,
+              gap: 6,
+            }}
+          >
+            {color && (
+              <span
+                aria-hidden="true"
+                style={{
+                  width: tiny ? 8 : 10,
+                  height: tiny ? 8 : 10,
+                  borderRadius: 999,
+                  backgroundColor: color,
+                  flexShrink: 0,
+                  boxShadow: "0 0 2px rgba(0,0,0,0.25)",
+                }}
+              />
+            )}
+            <span style={titleStyle}>{title}</span>
+          </div>
 
+          {/* Right side: actions (menu or inline) */}
           {useMenu ? (
             <div style={{ position: "relative" }}>
-              <button aria-label="open menu" style={menuBtnStyle} onClick={() => setMenuOpen((s) => !s)}>
+              <button
+                aria-label="open menu"
+                style={menuBtnStyle}
+                onClick={() => setMenuOpen((s) => !s)}
+              >
                 ⋯
               </button>
               {menuOpen && (
-                <div style={{ position: "absolute", right: 0, top: "100%", marginTop: 6, background: "#fff", border: "1px solid #ddd", borderRadius: 6, boxShadow: "0 6px 18px rgba(0,0,0,0.08)", zIndex: 1000 }}>
-                  <div style={{ display: "flex", flexDirection: "column", minWidth: 120 }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "100%",
+                    marginTop: 6,
+                    background: "#fff",
+                    border: "1px solid #ddd",
+                    borderRadius: 6,
+                    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                    zIndex: 1000,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      minWidth: 120,
+                    }}
+                  >
                     {onComplete && (
-                      <button onClick={() => { onComplete(); setMenuOpen(false); }} style={{ padding: tiny ? "2px 6px" : "8px 12px", border: "none", background: "transparent", textAlign: "left", cursor: "pointer", fontSize: tiny ? "0.75rem" : undefined }}>
+                      <button
+                        onClick={() => {
+                          onComplete();
+                          setMenuOpen(false);
+                        }}
+                        style={{
+                          padding: tiny ? "2px 6px" : "8px 12px",
+                          border: "none",
+                          background: "transparent",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: tiny ? "0.75rem" : undefined,
+                        }}
+                      >
                         Complete
                       </button>
                     )}
                     {onDelete && (
-                      <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ padding: tiny ? "2px 6px" : "8px 12px", border: "none", background: "transparent", textAlign: "left", color: "#b40", cursor: "pointer", fontSize: tiny ? "0.75rem" : undefined }}>
+                      <button
+                        onClick={() => {
+                          onDelete();
+                          setMenuOpen(false);
+                        }}
+                        style={{
+                          padding: tiny ? "2px 6px" : "8px 12px",
+                          border: "none",
+                          background: "transparent",
+                          textAlign: "left",
+                          color: "#b40",
+                          cursor: "pointer",
+                          fontSize: tiny ? "0.75rem" : undefined,
+                        }}
+                      >
                         Delete
                       </button>
                     )}
@@ -88,12 +169,22 @@ export default function TaskCard({
           ) : (
             <div style={{ display: "flex", gap: 8 }}>
               {onComplete && (
-                <Button variant="success" size={tiny ? "sm" : "sm"} onClick={onComplete} style={{ padding: tiny ? "2px 6px" : undefined }}>
+                <Button
+                  variant="success"
+                  size={tiny ? "sm" : "sm"}
+                  onClick={onComplete}
+                  style={{ padding: tiny ? "2px 6px" : undefined }}
+                >
                   ✓
                 </Button>
               )}
               {onDelete && (
-                <Button variant="danger" size={tiny ? "sm" : "sm"} onClick={onDelete} style={{ padding: tiny ? "2px 6px" : undefined }}>
+                <Button
+                  variant="danger"
+                  size={tiny ? "sm" : "sm"}
+                  onClick={onDelete}
+                  style={{ padding: tiny ? "2px 6px" : undefined }}
+                >
                   X
                 </Button>
               )}
@@ -101,10 +192,26 @@ export default function TaskCard({
           )}
         </div>
 
-        {showDescription && description && !compact && !tiny && <div style={{ marginTop: "0.25rem", fontSize: "0.9rem", color: "#555" }}>{description}</div>}
+        {showDescription && description && !compact && !tiny && (
+          <div
+            style={{
+              marginTop: "0.25rem",
+              fontSize: "0.9rem",
+              color: "#555",
+            }}
+          >
+            {description}
+          </div>
+        )}
 
         {dueDate && !tiny && (
-          <div style={{ marginTop: "0.12rem", fontSize: "0.8rem", color: "#888" }}>
+          <div
+            style={{
+              marginTop: "0.12rem",
+              fontSize: "0.8rem",
+              color: "#888",
+            }}
+          >
             Due: {dueDate}
           </div>
         )}

@@ -7,7 +7,13 @@ export default function HomePage() {
   const auth = useAuth();
   const [tasks, setTasks] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [newTask, setNewTask] = useState({ title: "", description: "", dueDate: "", color: "#ffffff" });
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    dueDate: "",
+    color: "#ffffff",   // class color
+    className: "",      // new field
+  });
 
   useEffect(() => {
     if (auth.user) setTasks(auth.getTasks());
@@ -38,13 +44,13 @@ export default function HomePage() {
   const handleDeleteTab = (colId) => {
     if (!auth.user) return alert("Please log in to modify tabs.");
     const updatedCols = (columns || []).filter((c) => c.id !== colId);
-    // move tasks in deleted column to the first remaining column (if any)
-    const remainingFirst = updatedCols?.[0]?.id || null;
+
     const existing = auth.getTasks();
-    const updatedTasks = existing.map((t) => (t.status === colId ? { ...t, status: remainingFirst } : t)).filter((t) => {
-      // if there is no remaining column, keep tasks but clear status
-      return true;
-    });
+    // When deleting a class/column, clear the status for tasks that used it
+    const updatedTasks = existing.map((t) =>
+      t.status === colId ? { ...t, status: null } : t
+    );
+
     auth.setTasks(updatedTasks);
     setTasks(updatedTasks);
     setColumns(updatedCols);
@@ -54,18 +60,53 @@ export default function HomePage() {
   const handleAddTask = () => {
     if (!newTask.title.trim()) return;
     if (!auth.user) return alert("Please log in to save tasks to your account.");
-    // New tasks should start unsorted (no status)
+
+    const className = (newTask.className || "").trim();
+    const classColor = newTask.color || "#ffffff";
+
+    let updatedColumns = columns || [];
+    let classColumn = null;
+    let status = null;
+
+    // If a class name is provided, ensure a column (class) exists for it
+    if (className) {
+      classColumn = updatedColumns.find(
+        (c) => c.title.toLowerCase() === className.toLowerCase()
+      );
+
+      if (!classColumn) {
+        classColumn = {
+          id: `col-${Date.now()}`,
+          title: className,
+          color: classColor,
+        };
+        updatedColumns = [...updatedColumns, classColumn];
+        setColumns(updatedColumns);
+        auth.setColumns(updatedColumns);
+      }
+      status = classColumn.id;
+    }
+
+    // New tasks start attached to their class column (if given), otherwise unsorted
     const task = {
       id: Date.now(),
       title: newTask.title,
       description: newTask.description,
       dueDate: newTask.dueDate,
-      status: null,
-      color: newTask.color || "#ffffff",
+      status,                 // column id if class given
+      color: classColor,      // use class color for the task
+      className: className,   // store class name on the task as well
     };
+
     const updated = auth.addTask(task);
     setTasks(updated);
-    setNewTask({ title: "", description: "", dueDate: "", color: "#ffffff" });
+    setNewTask({
+      title: "",
+      description: "",
+      dueDate: "",
+      color: "#ffffff",
+      className: "",
+    });
   };
 
   const handleCompleteTask = (id) => {
@@ -103,49 +144,63 @@ export default function HomePage() {
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: 1100, display: 'flex', gap: 16 }}>
           {/* Add Task column (left) */}
-          <div style={{ flex: 2, background: "#5c8f5eff", border: "1px solid #5c8f5eff", padding: "1rem 1.25rem", borderRadius: 8 }}>
+          <div style={{ flex: 2, background: "var(--color-background-alt)", border: "1px solid var(--color-primary)", padding: "1rem 1.25rem", borderRadius: 8 }}>
             <h4 style={{ textAlign: "center", marginTop: 0 }}>Add Task</h4>
             <Form onSubmit={(e) => { e.preventDefault(); handleAddTask(); }}>
-            <Form.Group className="mb-2">
-              <Form.Control
-                type="text"
-                placeholder="Task title"
-                value={newTask.title}
-                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-              />
-            </Form.Group>
+              <Form.Group className="mb-2">
+                <Form.Control
+                  type="text"
+                  placeholder="Task title"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                />
+              </Form.Group>
 
-            <Form.Group className="mb-2">
-              <Form.Control
-                type="text"
-                placeholder="Description"
-                value={newTask.description}
-                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-              />
-            </Form.Group>
+              <Form.Group className="mb-2">
+                <Form.Control
+                  type="text"
+                  placeholder="Description"
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                />
+              </Form.Group>
 
-            <Form.Group className="mb-2">
-              <Form.Control
-                type="date"
-                value={newTask.dueDate}
-                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-              />
-            </Form.Group>
+              {/* New: Class name */}
+              <Form.Group className="mb-2">
+                <Form.Control
+                  type="text"
+                  placeholder="Class (optional)"
+                  value={newTask.className}
+                  onChange={(e) => setNewTask({ ...newTask, className: e.target.value })}
+                />
+              </Form.Group>
 
-            <Form.Group className="mb-2" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <label style={{ margin: 0 }}>Card color:</label>
-              <input type="color" value={newTask.color || '#ffffff'} onChange={(e) => setNewTask({ ...newTask, color: e.target.value })} />
-            </Form.Group>
+              <Form.Group className="mb-2">
+                <Form.Control
+                  type="date"
+                  value={newTask.dueDate}
+                  onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                />
+              </Form.Group>
 
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Button variant="primary" type="submit">Add Task</Button>
-            </div>
+              <Form.Group className="mb-2" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ margin: 0 }}>Class color:</label>
+                <input
+                  type="color"
+                  value={newTask.color || '#ffffff'}
+                  onChange={(e) => setNewTask({ ...newTask, color: e.target.value })}
+                />
+              </Form.Group>
+
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Button variant="primary" type="submit">Add Task</Button>
+              </div>
             </Form>
           </div>
 
           {/* Unsorted Tasks column (right) */}
           <div style={{ flex: 1 }}>
-            <div style={{ background: "#f7f7f7", border: "1px solid #bcbcbcff", padding: 12, borderRadius: 8 }}>
+            <div style={{ background: "var(--color-background-alt)", border: "1px solid", padding: 12, borderRadius: 8 }}>
               <h5 style={{ marginTop: 0, marginBottom: 8, color: '#666' }}>Unsorted Tasks</h5>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 260, overflowY: 'auto' }}>
                 {(() => {
@@ -170,24 +225,24 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Tabs area */}
+      {/* Tabs area (now Classes) */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: "100%", maxWidth: 1100, background: "#647994ff", border: "1px solid #647994ff", padding: "1rem", borderRadius: 8 }}>
+        <div style={{ width: "100%", maxWidth: 1100, background: "var(--color-primary)", border: "1px solid #647994ff", padding: "1rem", borderRadius: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <h2 style={{ margin: 0 }}>Tabs</h2>
-            <Button size="sm" onClick={handleAddTab}>Add Tab</Button>
+            <h2 style={{ margin: 0 }}>Classes</h2>
+            <Button size="sm" onClick={handleAddTab}>Add Class</Button>
           </div>
 
           {/* Tabs list — horizontally scrollable when many tabs */}
           <div style={{ overflowX: "auto", width: "100%", paddingBottom: 8 }}>
             <div style={{ display: "flex", gap: "1.25rem", width: "max-content" }}>
-            {columns.map((col) => (
-              <div
-                key={col.id}
-                onDragOver={allowDrop}
-                onDrop={(e) => handleDrop(e, col.id)}
-                style={{ minWidth: 260, minHeight: 200, background: col.color || "#ffffff", padding: "0.75rem", borderRadius: 6 }}
-              >
+              {columns.map((col) => (
+                <div
+                  key={col.id}
+                  onDragOver={allowDrop}
+                  onDrop={(e) => handleDrop(e, col.id)}
+                  style={{ minWidth: 260, minHeight: 200, background: "var(--color-secondary)", borderTop: `${col.color} solid 4px` || "#ffffff", padding: "0.75rem", borderRadius: 6 }}
+                >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8, marginRight: 24 }}>
                     <input
                       value={col.title}
@@ -197,16 +252,6 @@ export default function HomePage() {
                         auth.setColumns(updated);
                       }}
                       style={{ textAlign: "center", border: "none", background: "transparent", fontSize: 16, fontWeight: 600 }}
-                    />
-                    <input
-                      type="color"
-                      value={col.color || '#ffffff'}
-                      onChange={(e) => {
-                        const updated = columns.map((c) => (c.id === col.id ? { ...c, color: e.target.value } : c));
-                        setColumns(updated);
-                        auth.setColumns(updated);
-                      }}
-                      style={{ width: 28, height: 22, border: 'none', padding: 0 }}
                     />
                     <div style={{ marginLeft: 6 }}>
                       <Button size="sm" variant="danger" onClick={() => handleDeleteTab(col.id)}>Delete</Button>
@@ -228,12 +273,12 @@ export default function HomePage() {
                       />
                     ))}
                   </div>
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
   );
 }
