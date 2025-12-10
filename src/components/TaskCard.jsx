@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Card, Button } from "react-bootstrap";
+import checkCircleIcon from "../assets/check-circle.svg";
+import plusCircleIcon from "../assets/plus-circle.svg";
+import trashIcon from "../assets/trash.svg";
 
 export default function TaskCard({
   title,
@@ -14,6 +17,8 @@ export default function TaskCard({
   tiny = false,
   inlineActions = false,
   showDescription = true,
+  onAddToStudy,
+  isInStudySession = false,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -139,8 +144,32 @@ export default function TaskCard({
                           cursor: "pointer",
                           fontSize: tiny ? "0.75rem" : undefined,
                         }}
+                        title="Mark as complete"
                       >
                         Complete
+                      </button>
+                    )}
+                    {onAddToStudy && (
+                      <button
+                        onClick={() => {
+                          if (!isInStudySession) {
+                            onAddToStudy();
+                            setMenuOpen(false);
+                          }
+                        }}
+                        disabled={isInStudySession}
+                        style={{
+                          padding: tiny ? "2px 6px" : "8px 12px",
+                          border: "none",
+                          background: "transparent",
+                          textAlign: "left",
+                          cursor: isInStudySession ? "not-allowed" : "pointer",
+                          fontSize: tiny ? "0.75rem" : undefined,
+                          opacity: isInStudySession ? 0.5 : 1,
+                        }}
+                        title={isInStudySession ? "Already in study session" : "Add to study session"}
+                      >
+                        Add to Study
                       </button>
                     )}
                     {onDelete && (
@@ -158,6 +187,7 @@ export default function TaskCard({
                           cursor: "pointer",
                           fontSize: tiny ? "0.75rem" : undefined,
                         }}
+                        title="Delete task"
                       >
                         Delete
                       </button>
@@ -173,9 +203,26 @@ export default function TaskCard({
                   variant="success"
                   size={tiny ? "sm" : "sm"}
                   onClick={onComplete}
-                  style={{ padding: tiny ? "2px 6px" : undefined }}
+                  style={{ padding: tiny ? "2px 6px" : "4px 8px" }}
+                  title="Mark as complete"
                 >
-                  ✓
+                  <img src={checkCircleIcon} alt="complete" style={{ width: 16, height: 16 }} />
+                </Button>
+              )}
+              {onAddToStudy && (
+                <Button
+                  variant={isInStudySession ? "secondary" : "info"}
+                  size={tiny ? "sm" : "sm"}
+                  onClick={onAddToStudy}
+                  disabled={isInStudySession}
+                  style={{ 
+                    padding: tiny ? "2px 6px" : "4px 8px",
+                    opacity: isInStudySession ? 0.6 : 1,
+                    cursor: isInStudySession ? "not-allowed" : "pointer",
+                  }}
+                  title={isInStudySession ? "Already in study session" : "Add to Study Session"}
+                >
+                  <img src={plusCircleIcon} alt="add to study" style={{ width: 16, height: 16 }} />
                 </Button>
               )}
               {onDelete && (
@@ -183,9 +230,10 @@ export default function TaskCard({
                   variant="danger"
                   size={tiny ? "sm" : "sm"}
                   onClick={onDelete}
-                  style={{ padding: tiny ? "2px 6px" : undefined }}
+                  style={{ padding: tiny ? "2px 6px" : "4px 8px" }}
+                  title="Delete task"
                 >
-                  X
+                  <img src={trashIcon} alt="delete" style={{ width: 16, height: 16 }} />
                 </Button>
               )}
             </div>

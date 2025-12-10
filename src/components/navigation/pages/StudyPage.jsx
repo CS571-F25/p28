@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Form } from "react-bootstrap";
 import StudyTrack from "../../StudyTrack";
+import TaskCard from "../../TaskCard";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function StudyPage() {
+  const auth = useAuth();
   const INITIAL_MINUTES = 30;
   const INITIAL_TOTAL_TIME = INITIAL_MINUTES * 60; // seconds
 
@@ -10,6 +13,7 @@ export default function StudyPage() {
   const [timeLeft, setTimeLeft] = useState(INITIAL_TOTAL_TIME);
   const [minutesInput, setMinutesInput] = useState(INITIAL_MINUTES);
   const [isRunning, setIsRunning] = useState(false);
+  const [studySessionTasks, setStudySessionTasks] = useState([]);
   const timerRef = useRef(null);
 
   const formatTime = (seconds) => {
@@ -80,26 +84,109 @@ export default function StudyPage() {
     }
   }, [timeLeft, isRunning]);
 
+  useEffect(() => {
+    if (auth.user) {
+      setStudySessionTasks(auth.getStudySessionTasks() || []);
+    } else {
+      setStudySessionTasks([]);
+    }
+  }, [auth.user]);
+
+  const handleRemoveFromStudySession = (taskId) => {
+    if (!auth.user) return;
+    const updated = auth.removeTaskFromStudySession(taskId);
+    setStudySessionTasks(updated);
+  };
+
+  const handleCompleteFromStudySession = (taskId) => {
+    if (!auth.user) return;
+    // Remove from study session
+    const updated = auth.removeTaskFromStudySession(taskId);
+    setStudySessionTasks(updated);
+    // Mark as complete in main tasks
+    auth.completeTaskById(taskId);
+  };
+
+  const handleClearStudySession = () => {
+    if (!auth.user) return;
+    if (window.confirm("Clear all tasks from study session?")) {
+      auth.clearStudySession();
+      setStudySessionTasks([]);
+    }
+  };
+
   return (
     <div
       style={{
         display: "flex",
         minHeight: "80vh",
         fontFamily: "sans-serif",
+        gap: "1rem",
+        padding: "1rem",
       }}
     >
-      {/* Left side: main timer + controls */}
+      {/* Left sidebar: Study session tasks */}
       <div
         style={{
-          flex: 1,
-          padding: "2rem",
+          width: "280px",
+          background: "var(--color-background)",
+          border: "1px solid #404040",
+          borderRadius: 8,
+          padding: "1rem",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "1.5rem",
+          overflowY: "auto",
         }}
       >
+        <h3 style={{ margin: "0 0 1rem 0", fontSize: "1.1rem" }}>Study Tasks</h3>
+        {studySessionTasks.length === 0 ? (
+          <div style={{ fontSize: "0.9rem", color: "#9ca3af", fontStyle: "italic" }}>
+            Add tasks to focus on them during this session
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1 }}>
+            {studySessionTasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                title={task.title}
+                description={task.description}
+                dueDate={task.dueDate}
+                compact={true}
+                showDescription={false}
+                inlineActions={true}
+                onComplete={() => handleCompleteFromStudySession(task.id)}
+                onDelete={() => handleRemoveFromStudySession(task.id)}
+                color={task.color}
+              />
+            ))}
+          </div>
+        )}
+        {studySessionTasks.length > 0 && (
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={handleClearStudySession}
+            style={{ marginTop: "1rem" }}
+          >
+            Clear All
+          </Button>
+        )}
+      </div>
+
+      {/* Center & Right: Timer and track */}
+      <div style={{ flex: 1, display: "flex", gap: "1rem" }}>
+        {/* Center: main timer + controls */}
+        <div
+          style={{
+            flex: 1,
+            padding: "2rem",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "1.5rem",
+          }}
+        >
         <h1 style={{ fontSize: "5rem", marginBottom: "1rem" }}>
           {formatTime(timeLeft)}
         </h1>
@@ -172,6 +259,7 @@ export default function StudyPage() {
           timeLeft={timeLeft}
           isRunning={isRunning}
         />
+      </div>
       </div>
     </div>
   );

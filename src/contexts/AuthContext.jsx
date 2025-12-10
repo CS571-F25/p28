@@ -28,6 +28,10 @@ function completedKey(username) {
   return `ontrack_completed_${username}`;
 }
 
+function studySessionKey(username) {
+  return `ontrack_studysession_${username}`;
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => null);
 
@@ -151,6 +155,46 @@ export function AuthProvider({ children }) {
     return tasks;
   };
 
+  const getStudySessionTasks = () => {
+    if (!user) return [];
+    try {
+      return JSON.parse(localStorage.getItem(studySessionKey(user.username)) || "[]");
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const saveStudySessionTasks = (studyTasks) => {
+    if (!user) return;
+    localStorage.setItem(studySessionKey(user.username), JSON.stringify(studyTasks));
+  };
+
+  const addTaskToStudySession = (task) => {
+    if (!user) return [];
+    const studyTasks = getStudySessionTasks();
+    // Avoid duplicates
+    if (studyTasks.find((t) => t.id === task.id)) return studyTasks;
+    studyTasks.push(task);
+    saveStudySessionTasks(studyTasks);
+    return studyTasks;
+  };
+
+  const removeTaskFromStudySession = (taskId) => {
+    if (!user) return [];
+    const studyTasks = getStudySessionTasks();
+    const idx = studyTasks.findIndex((t) => t.id === taskId);
+    if (idx === -1) return studyTasks;
+    studyTasks.splice(idx, 1);
+    saveStudySessionTasks(studyTasks);
+    return studyTasks;
+  };
+
+  const clearStudySession = () => {
+    if (!user) return [];
+    saveStudySessionTasks([]);
+    return [];
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -168,6 +212,10 @@ export function AuthProvider({ children }) {
       setCompleted,
       incrementCompleted,
       completeTaskById,
+      getStudySessionTasks,
+      addTaskToStudySession,
+      removeTaskFromStudySession,
+      clearStudySession,
     }}>
       {children}
     </AuthContext.Provider>
