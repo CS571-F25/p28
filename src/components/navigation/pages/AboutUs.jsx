@@ -27,14 +27,14 @@ export default function AboutUs() {
                             <p><b>Home:</b> Create and organize your tasks.</p>
                             <p><b>Weekly Calendar:</b> View tasks by week.</p>
                             <p><b>Study Session:</b> Start focused study sessions.</p>
-                            <p><b>Profile:</b> Manage account info.</p>
+                            <p><b>Profile:</b> Manage account info and view monthly activity.</p>
                     </section>
 
                     {/* Bottom-left: Our Team */}
                     <section style={{ padding: "1.5rem", borderRadius: 8, background: "#e19c56ff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
                         <h2 style={{ marginTop: 0 }}>Our Team</h2>
                             <p><b>Annaliese:</b> I'm a senior studying computer science with a minor in data science. I love listening to music, baking, and doing crafts! </p>
-                            <p><b>Hudson:</b> I'm a junior studying computer science.</p>                    
+                            <p><b>Hudson:</b> I'm a junior studying computer science and i'm in the UW Marching Band. I love movies, music, and sports</p>                    
                     </section>
 
                     {/* Bottom-right: Resources */}
