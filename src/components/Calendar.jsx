@@ -98,7 +98,7 @@ export default function Calendar({
           gridTemplateColumns: "repeat(7, 1fr)",
           gap: 4,
           fontSize: 11,
-          color: "#6b7280",
+          color: "var(--color-text-muted)",
           marginBottom: 4,
         }}
       >
@@ -157,7 +157,7 @@ export default function Calendar({
                   borderRadius: 4,
                   border: isSelected
                     ? "2px solid var(--color-primary)"
-                    : "1px solid #e5e7eb",
+                    : "1px solid var(--color-border-light)",
                   background: shade.bg,
                   opacity: shade.opacity,
                   cursor: "pointer",
@@ -171,7 +171,7 @@ export default function Calendar({
                     top: 2,
                     left: 3,
                     fontSize: 10,
-                    color: count ? "#f9fafb" : "#6b7280",
+                    color: count ? "var(--color-text)" : "var(--color-text-muted)",
                     textShadow: count ? "0 0 2px rgba(0,0,0,0.6)" : "none",
                   }}
                 >

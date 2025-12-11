@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Form, Button } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import MonthCalendar from "../../Calendar";
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -7,7 +7,7 @@ export default function ProfilePage() {
   const auth = useAuth();
   
   const [name, setName] = useState("");
-  const [age, setAge] = useState("");
+  const [year, setYear] = useState("");
   const [interests, setInterests] = useState("");
   const [editingField, setEditingField] = useState(null);
   const [tempValue, setTempValue] = useState("");
@@ -20,10 +20,6 @@ export default function ProfilePage() {
     if (auth.user) {
       setTasks(auth.getTasks() || []);
       setCompleted(auth.getCompleted() || 0);
-      const profile = auth.getProfile();
-      setName(profile.name || "");
-      setAge(profile.age || "");
-      setInterests(profile.interests || "");
     } else {
       setTasks([]);
       setCompleted(0);
@@ -37,17 +33,8 @@ export default function ProfilePage() {
 
   const handleSave = (field) => {
     if (field === "name") setName(tempValue);
-    if (field === "age") setAge(tempValue);
+    if (field === "year") setYear(tempValue);
     if (field === "interests") setInterests(tempValue);
-    
-    // Save to auth context
-    const updatedProfile = {
-      name: field === "name" ? tempValue : name,
-      age: field === "age" ? tempValue : age,
-      interests: field === "interests" ? tempValue : interests,
-    };
-    auth.saveProfile(updatedProfile);
-    
     setEditingField(null);
     setTempValue("");
   };
@@ -63,28 +50,60 @@ export default function ProfilePage() {
   })();
 
   return (
-    <Container fluid className="d-flex flex-column" style={{ padding: 0, minHeight: "100vh" }}>
-      {/* Header */}
-      <div className="border-bottom p-3" style={{ background: "var(--color-background-alt)" }}>
-        <h4 className="m-0" style={{ color: "var(--color-primary)" }}>Profile</h4>
-      </div>
-
-      {/* Content: left (profile), right (calendar) */}
-      <div className="d-flex p-3 gap-4" style={{ flex: 1, overflow: "hidden" }}>
-        {/* Left: Profile Section */}
-        <div className="d-flex flex-column border rounded p-5" style={{ flex: 1, minWidth: 0, background: "var(--color-background)", overflowY: "auto" }}>
-          {/* Welcome Header */}
-          <div className="mb-5">
-            <h2 className="m-0" style={{ color: "var(--color-text)", fontSize: 28, fontWeight: 600 }}>
-              Hello {name || (auth.user ? auth.user.username.charAt(0).toUpperCase() + auth.user.username.slice(1) : "Guest")}!
-            </h2>
-            <p className="m-0 mt-2 small text-muted">
-              Manage your profile information
-            </p>
+    <Container fluid style={{ padding: 0, minHeight: "100vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Header */}
+        <div
+          style={{
+            borderBottom: "1px solid var(--color-border)",
+            padding: 12,
+            background: "var(--color-background-alt)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <div>
+            <h4 style={{ margin: 0, color: "var(--color-primary)" }}>Profile</h4>
           </div>
+        </div>
 
-          {/* Profile Fields */}
-          <div className="d-flex flex-column gap-5">
+        {/* Content: left (profile), right (calendar) */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            padding: 12,
+            gap: 16,
+            overflow: "hidden",
+          }}
+        >
+          {/* Left: Profile Section */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: "var(--color-background)",
+              border: "1px solid var(--color-border-light)",
+              borderRadius: 8,
+              padding: 24,
+              display: "flex",
+              flexDirection: "column",
+              overflowY: "auto",
+            }}
+          >
+            {/* Welcome Header */}
+            <div style={{ marginBottom: 32 }}>
+              <h2 style={{ margin: 0, color: "var(--color-text)", fontSize: 28, fontWeight: 600 }}>
+                Hello {auth.user.username.charAt(0).toUpperCase() + auth.user.username.slice(1)}!
+              </h2>
+              <p style={{ margin: "8px 0 0 0", color: "var(--color-text-muted)", fontSize: 14 }}>
+                Manage your profile information
+              </p>
+            </div>
+
+            {/* Profile Fields */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {/* Name Field */}
               <ProfileField
                 label="Name"
@@ -98,15 +117,15 @@ export default function ProfilePage() {
                 onChange={setTempValue}
               />
 
-              {/* Age Field */}
+              {/* Year Field */}
               <ProfileField
-                label="Age"
-                value={age}
-                placeholder="Add your age"
-                isEditing={editingField === "age"}
+                label="Year"
+                value={year}
+                placeholder="Add your year"
+                isEditing={editingField === "year"}
                 tempValue={tempValue}
-                onEdit={() => handleEdit("age", age)}
-                onSave={() => handleSave("age")}
+                onEdit={() => handleEdit("year", year)}
+                onSave={() => handleSave("year")}
                 onCancel={handleCancel}
                 onChange={setTempValue}
               />
@@ -125,20 +144,28 @@ export default function ProfilePage() {
               />
 
               {/* Tasks Completed (Read-only) */}
-              <div className="pb-3 border-bottom">
-                <div className="d-flex justify-content-between align-items-center">
+              <div
+                style={{
+                  padding: "12px 0",
+                  borderBottom: "1px solid var(--color-border-light)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <div className="small fw-bold text-muted mb-2">
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
                       Tasks Completed
                     </div>
                   </div>
                   <div
-                    className="rounded-circle d-flex align-items-center justify-content-center"
                     style={{
                       width: 48,
                       height: 48,
+                      borderRadius: "50%",
                       background: "var(--color-primary)",
-                      color: "white",
+                      color: "var(--color-text)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       fontSize: 18,
                       fontWeight: 600,
                     }}
@@ -150,41 +177,53 @@ export default function ProfilePage() {
             </div>
           </div>
 
-        {/* Right: Activity Calendar */}
-        <div className="d-flex flex-column border rounded p-5" style={{ flex: 1, minWidth: 0, background: "var(--color-background)" }}>
-          <div className="mb-4">
-            <h3 className="m-0 fw-bold" style={{ fontSize: 18, color: "var(--color-text)" }}>
-              Activity Calendar
-            </h3>
-            <p className="m-0 mt-2 small text-muted">
-              {monthLabel}
-            </p>
-          </div>
-          
-          <div className="d-flex align-items-center justify-content-center" style={{ flex: 1 }}>
-            <div style={{ width: "100%", maxWidth: 600 }}>
-              <MonthCalendar
-                tasks={tasks}
-                selectedDate={selectedDate}
-                onSelectDate={setSelectedDate}
-              />
+          {/* Right: Activity Calendar */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: "var(--color-background)",
+              border: "1px solid var(--color-border-light)",
+              borderRadius: 8,
+              padding: 24,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div style={{ marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "var(--color-text)" }}>
+                Activity Calendar
+              </h3>
+              <p style={{ margin: "4px 0 0 0", color: "var(--color-text-muted)", fontSize: 13 }}>
+                {monthLabel}
+              </p>
             </div>
-          </div>
-
-          {/* Legend */}
-          <div className="mt-5 pt-4 border-top d-flex flex-column align-items-center">
-            <div className="small text-muted mb-3">
-              Task density
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              <span className="small text-muted">Less</span>
-              <div className="d-flex gap-1">
-                <div style={{ width: 16, height: 16, borderRadius: 3, border: "1px solid #e5e7eb", background: "transparent" }} />
-                <div style={{ width: 16, height: 16, borderRadius: 3, background: "var(--color-primary)", opacity: 0.25 }} />
-                <div style={{ width: 16, height: 16, borderRadius: 3, background: "var(--color-primary)", opacity: 0.6 }} />
-                <div style={{ width: 16, height: 16, borderRadius: 3, background: "var(--color-primary)", opacity: 1 }} />
+            
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: "100%", maxWidth: 600 }}>
+                <MonthCalendar
+                  tasks={tasks}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                />
               </div>
-              <span className="small text-muted">More</span>
+            </div>
+
+            {/* Legend */}
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--color-border-light)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginBottom: 8 }}>
+                Task density
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Less</span>
+                <div style={{ display: "flex", gap: 4 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: 3, border: "1px solid var(--color-border-light)", background: "transparent" }} />
+                  <div style={{ width: 16, height: 16, borderRadius: 3, background: "var(--color-primary)", opacity: 0.25 }} />
+                  <div style={{ width: 16, height: 16, borderRadius: 3, background: "var(--color-primary)", opacity: 0.6 }} />
+                  <div style={{ width: 16, height: 16, borderRadius: 3, background: "var(--color-primary)", opacity: 1 }} />
+                </div>
+                <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>More</span>
+              </div>
             </div>
           </div>
         </div>
@@ -206,56 +245,85 @@ function ProfileField({
   onChange,
 }) {
   return (
-    <div className="pb-3 border-bottom">
-      <div className="d-flex justify-content-between align-items-start">
+    <div
+      style={{
+        padding: "12px 0",
+        borderBottom: "1px solid var(--color-border-light)",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div style={{ flex: 1 }}>
-          <div className="small fw-bold text-muted mb-2">
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
             {label}
           </div>
           {isEditing ? (
-            <div className="mt-2">
-              <Form.Control
+            <div style={{ marginTop: 8 }}>
+              <input
                 type="text"
                 value={tempValue}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 autoFocus
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  border: "1px solid var(--color-border-light)",
+                  borderRadius: 6,
+                  fontSize: 14,
+                  outline: "none",
+                  background: "var(--color-secondary)",
+                  color: "var(--color-text-on-light)",
+                }}
               />
-              <div className="d-flex gap-2 mt-2">
-                <Button
-                  size="sm"
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <button
                   onClick={onSave}
                   style={{
+                    padding: "6px 12px",
+                    fontSize: 12,
                     background: "var(--color-primary)",
+                    color: "var(--color-text)",
                     border: "none",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontWeight: 500,
                   }}
                 >
                   Save
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
+                </button>
+                <button
                   onClick={onCancel}
+                  style={{
+                    padding: "6px 12px",
+                    fontSize: 12,
+                    background: "var(--color-border-light)",
+                    color: "var(--color-text-on-light)",
+                    border: "none",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    fontWeight: 500,
+                  }}
                 >
                   Cancel
-                </Button>
+                </button>
               </div>
             </div>
           ) : (
             <div style={{ fontSize: 15, color: "var(--color-text)" }}>
-              {value || <span className="text-muted" style={{ fontStyle: "italic" }}>{placeholder}</span>}
+              {value || <span style={{ color: "var(--color-text-muted)", fontStyle: "italic" }}>{placeholder}</span>}
             </div>
           )}
         </div>
         {!isEditing && (
           <button
             onClick={onEdit}
-            className="bg-transparent border-0"
             style={{
+              background: "transparent",
+              border: "none",
               cursor: "pointer",
               padding: 4,
               marginLeft: 8,
-              color: "#6b7280",
+              color: "var(--color-text-muted)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

@@ -102,7 +102,7 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
           style={{
             fontSize: "0.9rem",
             marginBottom: "0.25rem",
-            color: "#e5e7eb",
+            color: "var(--color-text-muted)",
           }}
         >
           Session progress
@@ -119,8 +119,7 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
             style={{
               width: `${Math.min(1, Math.max(0, sessionProgress)) * 100}%`,
               height: "100%",
-              background:
-                "linear-gradient(90deg, #22c55e, #4ade80, var(--color-success))",
+              background: "linear-gradient(90deg, #10b981, #34d399, var(--color-success))",
             }}
           />
         </div>
@@ -131,7 +130,7 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
             display: "flex",
             justifyContent: "space-between",
             fontSize: "0.85rem",
-            color: "#9ca3af",
+            color: "var(--color-text-muted)",
           }}
         >
           <span>
@@ -145,7 +144,7 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
             style={{
               fontSize: "0.8rem",
               marginBottom: "0.2rem",
-              color: "#e5e7eb",
+              color: "var(--color-text-muted)",
             }}
           >
             Current lap
@@ -162,7 +161,7 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
               style={{
                 width: `${lapProgress * 100}%`,
                 height: "100%",
-                background: "linear-gradient(90deg, #22d3ee, #6366f1)",
+                background: "linear-gradient(90deg, #00a2ff, #33b5ff)",
               }}
             />
           </div>
@@ -270,7 +269,7 @@ function OvalTrack({ lapProgress, currentLap, totalLaps }) {
         rx={rx}
         ry={ry}
         fill="none"
-        stroke="#020617"
+        stroke="var(--color-background-alt)"
         strokeWidth={TRACK_CONFIG.strokeWidth}
       />
 
@@ -317,7 +316,7 @@ function OvalTrack({ lapProgress, currentLap, totalLaps }) {
         rx={rx}
         ry={ry}
         fill="none"
-        stroke="#0f172a"
+        stroke="var(--color-background-alt)"
         strokeWidth="2"
       />
 
@@ -326,12 +325,11 @@ function OvalTrack({ lapProgress, currentLap, totalLaps }) {
         cx={dotPos.x}
         cy={dotPos.y}
         r={TRACK_CONFIG.dotRadius}
-        fill="#e5e7eb"
+        fill="var(--color-text-muted)"
         stroke="var(--color-primary)"
         strokeWidth="3"
         style={{
-          filter:
-            "drop-shadow(0 0 8px rgba(56,189,248,0.9)) drop-shadow(0 0 14px rgba(37,99,235,0.7))",
+          filter: "drop-shadow(0 0 8px var(--color-primary)) drop-shadow(0 0 14px var(--color-primary))",
         }}
       />
 
@@ -340,7 +338,7 @@ function OvalTrack({ lapProgress, currentLap, totalLaps }) {
         x={viewBoxWidth / 2}
         y={viewBoxHeight / 2 + 10}
         textAnchor="middle"
-        fill="#9ca3af"
+        fill="var(--color-text-muted)"
         fontSize="12"
       >
         Lap {currentLap} / {totalLaps}

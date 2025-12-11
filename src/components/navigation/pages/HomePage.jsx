@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Form, Button, Container } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import TaskCard from "../../TaskCard";
 import { useAuth } from "../../../contexts/AuthContext";
 import paintBucketIcon from "../../../assets/paint-bucket.svg";
@@ -134,25 +134,21 @@ export default function HomePage() {
   const byStatus = (status) => tasks.filter((t) => t.status === status);
 
   return (
-    <Container fluid className="d-flex flex-column gap-5 py-5">
+    <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "2.5rem" }}>
       {/* Tabs area */}
-      <div className="d-flex justify-content-center">
-        <div className="w-100" style={{ maxWidth: 1200 }}>
-          <div
-            className="bg-primary border text-light p-4 rounded"
-            style={{ borderColor: "#647994ff" }}
-          >
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h2 className="m-0">Tabs</h2>
-              <Button size="sm" onClick={handleAddTab}>Create Tab</Button>
-            </div>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ width: "100%", maxWidth: 1200, background: "var(--color-primary)", border: "1px solid var(--color-border)", padding: "1.5rem", borderRadius: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h2 style={{ margin: 0, color: "var(--color-text)" }}>Tabs</h2>
+            <Button size="sm" onClick={handleAddTab}>Create Tab</Button>
+          </div>
 
-            {/* No tabs message */}
-            {(!columns || columns.length === 0) && (
-              <div className="text-center py-5 text-secondary">
-                <p className="fs-5">Create a tab to start!</p>
-              </div>
-            )}
+          {/* No tabs message */}
+          {(!columns || columns.length === 0) && (
+            <div style={{ textAlign: "center", padding: "2rem", color: "var(--color-text)", fontSize: "1.1rem" }}>
+              Create a tab to start!
+            </div>
+          )}
 
           {/* Tabs grid */}
           {columns && columns.length > 0 && (
@@ -190,12 +186,13 @@ export default function HomePage() {
                         style={{
                           flex: 1,
                           textAlign: "left",
-                          border: "1px solid #ccc",
+                          border: "1px solid var(--color-border-light)",
                           background: "transparent",
                           fontSize: 16,
                           fontWeight: 600,
                           padding: "4px 8px",
-                          borderRadius: 4
+                          borderRadius: 4,
+                          color: "var(--color-text-on-light)",
                         }}
                       />
                     ) : (
@@ -208,7 +205,7 @@ export default function HomePage() {
                           padding: "4px 8px",
                           borderRadius: 4,
                           userSelect: "none",
-                          color: "#333",
+                          color: "var(--color-text-on-light)",
                           fontSize: 16,
                           fontWeight: 600
                         }}
@@ -241,8 +238,8 @@ export default function HomePage() {
                         top: "100%",
                         right: 0,
                         marginTop: 8,
-                        background: "#fff",
-                        border: "1px solid #ddd",
+                        background: "var(--color-secondary)",
+                        border: "1px solid var(--color-border-light)",
                         borderRadius: 6,
                         padding: 8,
                         boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
@@ -266,7 +263,7 @@ export default function HomePage() {
                               height: 24,
                               borderRadius: 3,
                               background: color,
-                              border: col.color === color ? '3px solid #000' : '1px solid #ccc',
+                              border: col.color === color ? '3px solid #000' : '1px solid var(--color-border-light)',
                               cursor: 'pointer',
                               transition: 'all 0.2s'
                             }}
@@ -304,7 +301,7 @@ export default function HomePage() {
 
                   {/* Add Task form for this tab */}
                   {addingTaskToTabId === col.id ? (
-                    <div style={{ borderTop: "1px solid #ddd", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ borderTop: "1px solid var(--color-border-light)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
                       <Form.Control
                         type="text"
                         placeholder="Task title"
@@ -332,7 +329,7 @@ export default function HomePage() {
                               height: 24,
                               borderRadius: 3,
                               background: color,
-                              border: newTask.color === color ? '3px solid #000' : '1px solid #ccc',
+                              border: newTask.color === color ? '3px solid #000' : '1px solid var(--color-border-light)',
                               cursor: 'pointer',
                               transition: 'all 0.2s'
                             }}
@@ -353,10 +350,9 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
-    </Container>
+    </div>
   );
 }

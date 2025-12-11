@@ -33,29 +33,31 @@ export default function AuthPage() {
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
-      <Card style={{ width: 400, padding: "1.5rem" }}>
+      <Card style={{ width: 400, padding: "1.5rem", background: "var(--color-secondary)" }}>
         <Card.Body>
-          <h3 style={{ textAlign: "center" }}>{mode === "login" ? "Log In" : "Create Account"}</h3>
+          <h3 style={{ textAlign: "center", color: "var(--color-text-on-light)" }}>
+            {mode === "login" ? "Log In" : "Create Account"}
+          </h3>
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-2">
-              <Form.Label>Username</Form.Label>
+              <Form.Label style={{ color: "var(--color-text-on-light)" }}>Username</Form.Label>
               <Form.Control value={username} onChange={(e) => setUsername(e.target.value)} />
             </Form.Group>
 
             <Form.Group className="mb-2">
-              <Form.Label>Password</Form.Label>
+              <Form.Label style={{ color: "var(--color-text-on-light)" }}>Password</Form.Label>
               <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </Form.Group>
 
             {mode === "register" && (
               <Form.Group className="mb-2">
-                <Form.Label>Confirm Password</Form.Label>
+                <Form.Label style={{ color: "var(--color-text-on-light)" }}>Confirm Password</Form.Label>
                 <Form.Control type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
               </Form.Group>
             )}
 
-            {error && <div style={{ color: "red", marginBottom: "0.5rem" }}>{error}</div>}
+            {error && <div style={{ color: "var(--color-danger)", marginBottom: "0.5rem" }}>{error}</div>}
 
             <Button type="submit" style={{ width: "100%" }}>{mode === "login" ? "Log In" : "Register"}</Button>
           </Form>
@@ -63,12 +65,12 @@ export default function AuthPage() {
           <div style={{ marginTop: "0.75rem", textAlign: "center" }}>
             {mode === "login" ? (
               <>
-                <span>Don't have an account? </span>
+                <span style={{ color: "var(--color-text-on-light)" }}>Don't have an account? </span>
                 <Button variant="link" onClick={() => { setMode("register"); setError(""); setConfirmPassword(""); setPassword(""); }}>Create one</Button>
               </>
             ) : (
               <>
-                <span>Already have an account? </span>
+                <span style={{ color: "var(--color-text-on-light)" }}>Already have an account? </span>
                 <Button variant="link" onClick={() => { setMode("login"); setError(""); setConfirmPassword(""); setPassword(""); }}>Log in</Button>
               </>
             )}

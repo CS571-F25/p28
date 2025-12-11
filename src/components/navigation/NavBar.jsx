@@ -34,7 +34,7 @@ export default function NavBar() {
             fontSize: "1.8rem",
           }}
         >
-          <span style={{ color: "white" }}>On</span>
+          <span style={{ color: "var(--color-text)" }}>On</span>
           <span style={{ color: "var(--color-primary)" }}>Track</span>
         </Navbar.Brand>
 

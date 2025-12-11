@@ -81,7 +81,7 @@ export default function WeekView({
               key={iso}
               style={{
                 marginBottom: 12,
-                borderBottom: "1px dashed #e5e7eb",
+                borderBottom: "1px dashed var(--color-border-light)",
                 paddingBottom: 8,
               }}
             >
@@ -89,7 +89,7 @@ export default function WeekView({
                 style={{
                   fontSize: 13,
                   fontWeight: 600,
-                  color: "#4b5563",
+                  color: "var(--color-text-muted)",
                   marginBottom: 4,
                 }}
               >
@@ -99,7 +99,7 @@ export default function WeekView({
                 <div
                   style={{
                     fontSize: 12,
-                    color: "#9ca3af",
+                    color: "var(--color-text-muted)",
                     fontStyle: "italic",
                   }}
                 >
