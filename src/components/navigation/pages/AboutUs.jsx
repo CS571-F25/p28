@@ -20,6 +20,9 @@ export default function AboutUs() {
                            Tasks are organized into tabs. Each tab can represent a different class, project, or category of tasks, it's up to you! After making tabs, you can add your tasks and move them around.
                        </p>
                        <p> Note: you must be logged in to create tasks.</p>
+
+                        <p><b>WARNING:</b> Usernames and passwords are stored as plaintext for the sake of this project. If you make an account, use a simple, generic password please! </p>
+
                    </Col>
 
                      {/* Top-right: Pages */}
