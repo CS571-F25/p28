@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Container } from "react-bootstrap";
 import StudyTrack from "../../StudyTrack";
 import TaskCard from "../../TaskCard";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -116,35 +116,16 @@ export default function StudyPage() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "80vh",
-        fontFamily: "sans-serif",
-        gap: "1rem",
-        padding: "1rem",
-      }}
-    >
+    <div className="d-flex gap-3 p-4" style={{ minHeight: "80vh" }}>
       {/* Left sidebar: Study session tasks */}
-      <div
-        style={{
-          width: "280px",
-          background: "var(--color-background)",
-          border: "1px solid #404040",
-          borderRadius: 8,
-          padding: "1rem",
-          display: "flex",
-          flexDirection: "column",
-          overflowY: "auto",
-        }}
-      >
-        <h3 style={{ margin: "0 0 1rem 0", fontSize: "1.1rem" }}>Study Tasks</h3>
+      <div className="d-flex flex-column gap-3 p-3" style={{ width: "280px", background: "var(--color-background)", border: "1px solid #404040", borderRadius: 8, overflowY: "auto" }}>
+        <h3 className="m-0 mb-3" style={{ fontSize: "1.1rem" }}>Study Tasks</h3>
         {studySessionTasks.length === 0 ? (
-          <div style={{ fontSize: "0.9rem", color: "#9ca3af", fontStyle: "italic" }}>
+          <div className="text-muted small" style={{ fontStyle: "italic" }}>
             Add tasks to focus on them during this session
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1 }}>
+          <div className="d-flex flex-column gap-2" style={{ flex: 1 }}>
             {studySessionTasks.map((task) => (
               <TaskCard
                 key={task.id}
@@ -166,7 +147,7 @@ export default function StudyPage() {
             size="sm"
             variant="danger"
             onClick={handleClearStudySession}
-            style={{ marginTop: "1rem" }}
+            className="mt-3"
           >
             Clear All
           </Button>
@@ -174,31 +155,16 @@ export default function StudyPage() {
       </div>
 
       {/* Center & Right: Timer and track */}
-      <div style={{ flex: 1, display: "flex", gap: "1rem" }}>
+      <div className="d-flex flex-grow-1 gap-3">
         {/* Center: main timer + controls */}
-        <div
-          style={{
-            flex: 1,
-            padding: "2rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "1.5rem",
-          }}
-        >
+        <div className="d-flex flex-column align-items-center justify-content-center gap-4 flex-grow-1 p-5">
         <h1 style={{ fontSize: "5rem", marginBottom: "1rem" }}>
           {formatTime(timeLeft)}
         </h1>
 
         {/* Session length input */}
-        <div style={{ marginBottom: "0.5rem", textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: "0.9rem",
-              marginBottom: "0.25rem",
-            }}
-          >
+        <div className="mb-2 text-center">
+          <div className="small mb-2">
             Session length (minutes)
           </div>
           <Form.Control
@@ -206,19 +172,20 @@ export default function StudyPage() {
             min={1}
             value={minutesInput}
             onChange={handleMinutesChange}
-            style={{ maxWidth: "120px", margin: "0 auto", color: "var(--color-secondary)",backgroundColor: "var(--color-background)" }}
+            className="mx-auto"
+            style={{ maxWidth: "120px", color: "var(--color-secondary)", backgroundColor: "var(--color-background)" }}
           />
-          <small style={{ color: "#6b7280" }}>
+          <small className="text-muted">
             snapped to nearest 30 seconds
           </small>
         </div>
 
-        <div>
+        <div className="d-flex gap-3">
           {isRunning ? (
             <Button
               variant="danger"
               onClick={handleStop}
-              style={{ fontSize: "1.5rem", marginRight: "1rem" }}
+              style={{ fontSize: "1.5rem" }}
             >
               Stop
             </Button>
@@ -226,7 +193,7 @@ export default function StudyPage() {
             <Button
               variant="success"
               onClick={handleStart}
-              style={{ fontSize: "1.5rem", marginRight: "1rem" }}
+              style={{ fontSize: "1.5rem" }}
               disabled={timeLeft === 0}
             >
               Start
@@ -244,16 +211,7 @@ export default function StudyPage() {
       </div>
 
       {/* Right side: track visualizer */}
-      <div
-        style={{
-          flex: 1,
-          background: "var(--color-background)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "1.5rem",
-        }}
-      >
+      <div className="d-flex justify-content-center align-items-center flex-grow-1 p-4" style={{ background: "var(--color-background)" }}>
         <StudyTrack
           totalTimeSec={totalTimeSec}
           timeLeft={timeLeft}

@@ -32,6 +32,10 @@ function studySessionKey(username) {
   return `ontrack_studysession_${username}`;
 }
 
+function profileKey(username) {
+  return `ontrack_profile_${username}`;
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => null);
 
@@ -195,6 +199,20 @@ export function AuthProvider({ children }) {
     return [];
   };
 
+  const getProfile = () => {
+    if (!user) return { name: "", age: "", interests: "" };
+    try {
+      return JSON.parse(localStorage.getItem(profileKey(user.username)) || "{}");
+    } catch (e) {
+      return { name: "", age: "", interests: "" };
+    }
+  };
+
+  const saveProfile = (profileData) => {
+    if (!user) return;
+    localStorage.setItem(profileKey(user.username), JSON.stringify(profileData));
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -216,6 +234,8 @@ export function AuthProvider({ children }) {
       addTaskToStudySession,
       removeTaskFromStudySession,
       clearStudySession,
+      getProfile,
+      saveProfile,
     }}>
       {children}
     </AuthContext.Provider>

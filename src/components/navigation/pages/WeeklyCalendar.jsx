@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import TaskCard from "../../TaskCard";
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -102,116 +102,74 @@ export default function WeeklyCalendar() {
   })();
 
   return (
-    <Container fluid style={{ padding: 0, minHeight: "100vh" }}>
-      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        {/* Header */}
-        <div
-          style={{
-            borderBottom: "1px solid #e6e6e6",
-            padding: 12,
-            background: "var(--color-background-alt)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-          }}
-        >
+    <Container fluid className="d-flex flex-column" style={{ padding: 0, minHeight: "100vh" }}>
+      {/* Header */}
+      <div className="border-bottom p-3" style={{ background: "var(--color-background-alt)" }}>
+        <div className="d-flex justify-content-between align-items-baseline">
           <div>
-            <h4 style={{ margin: 0, color: "var(--color-primary)" }}>Weekly Calendar</h4>
-            <div style={{ fontSize: 13, color: "#888" }}>{weekLabel}</div>
+            <h4 className="m-0" style={{ color: "var(--color-primary)" }}>Weekly Calendar</h4>
+            <div className="small text-muted">{weekLabel}</div>
           </div>
-          <div style={{ fontSize: 13, color: "#888" }}>{monthLabel}</div>
+          <div className="small text-muted">{monthLabel}</div>
         </div>
+      </div>
 
-        {/* Content: left (month grid), right (week tasks) */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            padding: 12,
-            gap: 16,
-            overflow: "hidden",
-          }}
-        >
-          {/* Left: Month grid */}
-          <div
-            style={{
-              flex: 1,
-              minWidth: 0,
-              background: "var(--color-background)",
-              border: "1px solid #e5e7eb",
-              borderRadius: 8,
-              padding: 12,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
-              This month
-            </div>
-            <MonthCalendarGrid
-              tasks={tasks}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
+      {/* Content: left (month grid), right (week tasks) */}
+      <Row className="flex-grow-1 g-3 m-3" style={{ overflow: "hidden" }}>
+        {/* Left: Month grid */}
+        <Col md={6} className="d-flex flex-column border rounded p-3" style={{ background: "var(--color-background)", minWidth: 0 }}>
+          <div className="fw-bold mb-2" style={{ fontSize: 14 }}>
+            This month
           </div>
+          <MonthCalendarGrid
+            tasks={tasks}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        </Col>
 
-          {/* Right: Week tasks (scrollable) */}
-          <div
-            style={{
-              flex: 1,
-              minWidth: 0,
-              background: "var(--color-background)",
-              border: "1px solid #e5e7eb",
-              borderRadius: 8,
-              padding: 12,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
-              Tasks this week
-            </div>
-            <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
-              {weekInfo.days.map((d) => {
-                const iso = toISODate(d);
-                const dayTasks = tasksByDate[iso] || [];
-                return (
+        {/* Right: Week tasks (scrollable) */}
+        <Col md={6} className="d-flex flex-column border rounded p-3" style={{ background: "var(--color-background)", minWidth: 0 }}>
+          <div className="fw-bold mb-2" style={{ fontSize: 14 }}>
+            Tasks this week
+          </div>
+          <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
+            {weekInfo.days.map((d) => {
+              const iso = toISODate(d);
+              const dayTasks = tasksByDate[iso] || [];
+              return (
+                <div
+                  key={iso}
+                  className="mb-3 pb-2"
+                  style={{
+                    borderBottom: "1px dashed #e5e7eb",
+                  }}
+                >
                   <div
-                    key={iso}
+                    className="small fw-bold"
                     style={{
-                      marginBottom: 12,
-                      borderBottom: "1px dashed #e5e7eb",
-                      paddingBottom: 8,
+                      color: "#4b5563",
+                      marginBottom: 4,
                     }}
                   >
+                    {formatDayHeading(d)}
+                  </div>
+                  {dayTasks.length === 0 ? (
                     <div
+                      className="small text-muted"
                       style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: "#4b5563",
-                        marginBottom: 4,
+                        fontStyle: "italic",
                       }}
                     >
-                      {formatDayHeading(d)}
+                      No tasks
                     </div>
-                    {dayTasks.length === 0 ? (
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "#9ca3af",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        No tasks
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 6,
-                        }}
-                      >
+                  ) : (
+                    <div
+                      className="d-flex flex-column"
+                      style={{
+                        gap: 6,
+                      }}
+                    >
                         {dayTasks.map((task) => {
                           const cls = getClassForTask(task);
                           const classColor =
@@ -231,15 +189,14 @@ export default function WeeklyCalendar() {
                             />
                           );
                         })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
     </Container>
   );
 }

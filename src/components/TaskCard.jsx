@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, Button } from "react-bootstrap";
+import { Card, Button, Row, Col } from "react-bootstrap";
 import checkCircleIcon from "../assets/check-circle.svg";
 import plusCircleIcon from "../assets/plus-circle.svg";
 import trashIcon from "../assets/trash.svg";
@@ -24,30 +24,6 @@ export default function TaskCard({
 
   const className = (tiny || compact) ? "task-card-slim" : undefined;
 
-  const bodyStyle = tiny
-    ? { padding: "0px", display: "flex", flexDirection: "column" }
-    : compact
-    ? { padding: "0px", display: "flex", flexDirection: "column" }
-    : { padding: "4px 6px", display: "flex", flexDirection: "column" };
-
-  const titleStyle = {
-    fontWeight: tiny || compact ? 600 : "bold",
-    flex: 1,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    fontSize: tiny ? "0.9rem" : compact ? "0.95rem" : "1rem",
-    marginRight: 0,
-  };
-
-  const menuBtnStyle = {
-    background: "transparent",
-    border: "none",
-    padding: tiny ? 1 : 4,
-    cursor: "pointer",
-    fontSize: tiny ? 12 : 16,
-  };
-
   const useMenu = (compact || tiny) && !inlineActions;
 
   return (
@@ -55,131 +31,84 @@ export default function TaskCard({
       className={className}
       style={{
         marginBottom: tiny ? "0.125rem" : compact ? "0.375rem" : "0.5rem",
-        textAlign: "left",
         cursor: draggable ? "grab" : "default",
-        // no longer using color as background
       }}
       draggable={draggable}
       onDragStart={onDragStart}
       onMouseEnter={() => (compact || tiny) && setMenuOpen(true)}
       onMouseLeave={() => (compact || tiny) && setMenuOpen(false)}
     >
-      <Card.Body style={{ ...bodyStyle, position: "relative", display: "flex", flexDirection: "column" }}>
+      <Card.Body className="d-flex flex-column p-2" style={{ minHeight: "auto" }}>
         {/* Top section: title, description, dueDate */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
+        <div className="flex-grow-1" style={{ minWidth: 0 }}>
+          <div className="d-flex align-items-center gap-2">
             {/* Left side: color flag + title */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flex: 1,
-                minWidth: 0,
-                gap: 6,
-              }}
-            >
+            <div className="d-flex align-items-center flex-grow-1" style={{ minWidth: 0 }}>
               {color && (
                 <span
                   aria-hidden="true"
                   style={{
                     width: tiny ? 8 : 10,
                     height: tiny ? 8 : 10,
-                    borderRadius: 999,
+                    borderRadius: "50%",
                     backgroundColor: color,
                     flexShrink: 0,
                     boxShadow: "0 0 2px rgba(0,0,0,0.25)",
+                    marginRight: "0.375rem",
                   }}
                 />
               )}
-              <span style={titleStyle}>{title}</span>
+              <span
+                style={{
+                  fontWeight: tiny || compact ? 600 : "bold",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  fontSize: tiny ? "0.9rem" : compact ? "0.95rem" : "1rem",
+                }}
+              >
+                {title}
+              </span>
             </div>
           </div>
 
           {showDescription && description && !compact && !tiny && (
-            <div
-              style={{
-                marginTop: "0.25rem",
-                fontSize: "0.9rem",
-                color: "#555",
-              }}
-            >
-              {description}
-            </div>
+            <small className="d-block mt-1 text-muted">{description}</small>
           )}
 
           {dueDate && !tiny && (
-            <div
-              style={{
-                marginTop: "0.12rem",
-                fontSize: "0.8rem",
-                color: "#888",
-              }}
-            >
-              Due: {dueDate}
-            </div>
+            <small className="d-block mt-1 text-secondary">Due: {dueDate}</small>
           )}
         </div>
 
         {/* Bottom section: action buttons */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 6,
-            marginTop: "0.5rem",
-          }}
-        >
+        <div className="d-flex justify-content-end gap-2 mt-2">
           {useMenu ? (
-            <div style={{ position: "relative" }}>
+            <div className="position-relative">
               <button
                 aria-label="open menu"
-                style={menuBtnStyle}
+                className="btn btn-link p-0"
                 onClick={() => setMenuOpen((s) => !s)}
+                style={{ fontSize: tiny ? 12 : 16 }}
               >
                 ⋯
               </button>
               {menuOpen && (
                 <div
+                  className="position-absolute end-0 border rounded mt-2 bg-white shadow-sm"
                   style={{
-                    position: "absolute",
-                    right: 0,
-                    top: "100%",
-                    marginTop: 6,
-                    background: "#fff",
-                    border: "1px solid #ddd",
-                    borderRadius: 6,
-                    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
                     zIndex: 1000,
+                    minWidth: "120px",
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      minWidth: 120,
-                    }}
-                  >
+                  <div className="d-flex flex-column">
                     {onComplete && (
                       <button
                         onClick={() => {
                           onComplete();
                           setMenuOpen(false);
                         }}
-                        style={{
-                          padding: tiny ? "2px 6px" : "8px 12px",
-                          border: "none",
-                          background: "transparent",
-                          textAlign: "left",
-                          cursor: "pointer",
-                          fontSize: tiny ? "0.75rem" : undefined,
-                        }}
+                        className="btn btn-link text-start text-body p-2 text-decoration-none border-0"
                         title="Mark as complete"
                       >
                         Complete
@@ -194,15 +123,8 @@ export default function TaskCard({
                           }
                         }}
                         disabled={isInStudySession}
-                        style={{
-                          padding: tiny ? "2px 6px" : "8px 12px",
-                          border: "none",
-                          background: "transparent",
-                          textAlign: "left",
-                          cursor: isInStudySession ? "not-allowed" : "pointer",
-                          fontSize: tiny ? "0.75rem" : undefined,
-                          opacity: isInStudySession ? 0.5 : 1,
-                        }}
+                        className="btn btn-link text-start text-body p-2 text-decoration-none border-0"
+                        style={{ opacity: isInStudySession ? 0.5 : 1, cursor: isInStudySession ? "not-allowed" : "pointer" }}
                         title={isInStudySession ? "Already in study session" : "Add to study session"}
                       >
                         Add to Study
@@ -214,15 +136,7 @@ export default function TaskCard({
                           onDelete();
                           setMenuOpen(false);
                         }}
-                        style={{
-                          padding: tiny ? "2px 6px" : "8px 12px",
-                          border: "none",
-                          background: "transparent",
-                          textAlign: "left",
-                          color: "#b40",
-                          cursor: "pointer",
-                          fontSize: tiny ? "0.75rem" : undefined,
-                        }}
+                        className="btn btn-link text-start text-danger p-2 text-decoration-none border-0"
                         title="Delete task"
                       >
                         Delete
@@ -233,13 +147,13 @@ export default function TaskCard({
               )}
             </div>
           ) : (
-            <div style={{ display: "flex", gap: 8 }}>
+            <div className="d-flex gap-2">
               {onComplete && (
                 <Button
                   variant="success"
-                  size={tiny ? "sm" : "sm"}
+                  size="sm"
                   onClick={onComplete}
-                  style={{ padding: tiny ? "2px 6px" : "4px 8px" }}
+                  className="p-1"
                   title="Mark as complete"
                 >
                   <img src={checkCircleIcon} alt="complete" style={{ width: 16, height: 16 }} />
@@ -248,14 +162,11 @@ export default function TaskCard({
               {onAddToStudy && (
                 <Button
                   variant={isInStudySession ? "secondary" : "info"}
-                  size={tiny ? "sm" : "sm"}
+                  size="sm"
                   onClick={onAddToStudy}
                   disabled={isInStudySession}
-                  style={{ 
-                    padding: tiny ? "2px 6px" : "4px 8px",
-                    opacity: isInStudySession ? 0.6 : 1,
-                    cursor: isInStudySession ? "not-allowed" : "pointer",
-                  }}
+                  className="p-1"
+                  style={{ opacity: isInStudySession ? 0.6 : 1 }}
                   title={isInStudySession ? "Already in study session" : "Add to Study Session"}
                 >
                   <img src={plusCircleIcon} alt="add to study" style={{ width: 16, height: 16 }} />
@@ -264,9 +175,9 @@ export default function TaskCard({
               {onDelete && (
                 <Button
                   variant="danger"
-                  size={tiny ? "sm" : "sm"}
+                  size="sm"
                   onClick={onDelete}
-                  style={{ padding: tiny ? "2px 6px" : "4px 8px" }}
+                  className="p-1"
                   title="Delete task"
                 >
                   <img src={trashIcon} alt="delete" style={{ width: 16, height: 16 }} />

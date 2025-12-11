@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Container } from "react-bootstrap";
 import TaskCard from "../../TaskCard";
 import { useAuth } from "../../../contexts/AuthContext";
 import paintBucketIcon from "../../../assets/paint-bucket.svg";
@@ -134,21 +134,25 @@ export default function HomePage() {
   const byStatus = (status) => tasks.filter((t) => t.status === status);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "2.5rem" }}>
+    <Container fluid className="d-flex flex-column gap-5 py-5">
       {/* Tabs area */}
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: "100%", maxWidth: 1200, background: "var(--color-primary)", border: "1px solid #647994ff", padding: "1.5rem", borderRadius: 8 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ margin: 0 }}>Tabs</h2>
-            <Button size="sm" onClick={handleAddTab}>Create Tab</Button>
-          </div>
-
-          {/* No tabs message */}
-          {(!columns || columns.length === 0) && (
-            <div style={{ textAlign: "center", padding: "2rem", color: "#666", fontSize: "1.1rem" }}>
-              Create a tab to start!
+      <div className="d-flex justify-content-center">
+        <div className="w-100" style={{ maxWidth: 1200 }}>
+          <div
+            className="bg-primary border text-light p-4 rounded"
+            style={{ borderColor: "#647994ff" }}
+          >
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h2 className="m-0">Tabs</h2>
+              <Button size="sm" onClick={handleAddTab}>Create Tab</Button>
             </div>
-          )}
+
+            {/* No tabs message */}
+            {(!columns || columns.length === 0) && (
+              <div className="text-center py-5 text-secondary">
+                <p className="fs-5">Create a tab to start!</p>
+              </div>
+            )}
 
           {/* Tabs grid */}
           {columns && columns.length > 0 && (
@@ -349,9 +353,10 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
