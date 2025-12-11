@@ -71,48 +71,22 @@ export default function WeekView({
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", ...style }}>
-      <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
+    <div className="d-flex flex-column" style={style}>
+      <div className="flex-grow-1 overflow-auto pe-1">
         {weekInfo.days.map((d) => {
           const iso = toISODate(d);
           const dayTasks = tasksByDate[iso] || [];
           return (
-            <div
-              key={iso}
-              style={{
-                marginBottom: 12,
-                borderBottom: "1px dashed var(--color-border-light)",
-                paddingBottom: 8,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "var(--color-text-muted)",
-                  marginBottom: 4,
-                }}
-              >
+            <div key={iso} className="mb-3 pb-2" style={{ borderBottom: "1px dashed var(--color-border-light)" }}>
+              <div className="fw-bold mb-1 small" style={{ color: "var(--color-text-muted)" }}>
                 {formatDayHeading(d)}
               </div>
               {dayTasks.length === 0 ? (
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "var(--color-text-muted)",
-                    fontStyle: "italic",
-                  }}
-                >
+                <div className="fst-italic small" style={{ color: "var(--color-text-muted)" }}>
                   No tasks
                 </div>
               ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 6,
-                  }}
-                >
+                <div className="d-flex flex-column gap-2">
                   {dayTasks.map((task) => (
                     <div key={task.id}>
                       {renderTask(task)}

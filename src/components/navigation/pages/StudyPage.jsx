@@ -116,35 +116,20 @@ export default function StudyPage() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "80vh",
-        fontFamily: "sans-serif",
-        gap: "1rem",
-        padding: "1rem",
-      }}
-    >
+    <div className="d-flex gap-3 p-4" style={{ minHeight: "80vh", fontFamily: "sans-serif" }}>
       {/* Left sidebar: Study session tasks */}
-      <div
-        style={{
+      <div className="border rounded p-3 d-flex flex-column overflow-auto" style={{
           width: "280px",
           background: "var(--color-background)",
-          border: "1px solid var(--color-border)",
-          borderRadius: 8,
-          padding: "1rem",
-          display: "flex",
-          flexDirection: "column",
-          overflowY: "auto",
-        }}
-      >
-        <h3 style={{ margin: "0 0 1rem 0", fontSize: "1.1rem", color: "var(--color-text)" }}>Study Tasks</h3>
+          borderColor: "var(--color-border)"
+        }}>
+        <h3 className="m-0 mb-3" style={{ fontSize: "1.1rem", color: "var(--color-text)" }}>Study Tasks</h3>
         {studySessionTasks.length === 0 ? (
-          <div style={{ fontSize: "0.9rem", color: "var(--color-text-muted)", fontStyle: "italic" }}>
+          <div className="fst-italic" style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>
             Add tasks to focus on them during this session
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1 }}>
+          <div className="d-flex flex-column gap-2 flex-grow-1">
             {studySessionTasks.map((task) => (
               <TaskCard
                 key={task.id}
@@ -162,99 +147,57 @@ export default function StudyPage() {
           </div>
         )}
         {studySessionTasks.length > 0 && (
-          <Button
-            size="sm"
-            variant="danger"
-            onClick={handleClearStudySession}
-            style={{ marginTop: "1rem" }}
-          >
+          <Button size="sm" variant="danger" onClick={handleClearStudySession} className="mt-3">
             Clear All
           </Button>
         )}
       </div>
 
       {/* Center & Right: Timer and track */}
-      <div style={{ flex: 1, display: "flex", gap: "1rem" }}>
+      <div className="flex-grow-1 d-flex gap-3">
         {/* Center: main timer + controls */}
-        <div
-          style={{
-            flex: 1,
-            padding: "2rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "1.5rem",
-          }}
-        >
-        <h1 style={{ fontSize: "5rem", marginBottom: "1rem", color: "var(--color-text)" }}>
+        <div className="flex-grow-1 p-4 d-flex flex-column align-items-center justify-content-center gap-4">
+        <h1 className="mb-3" style={{ fontSize: "5rem", color: "var(--color-text)" }}>
           {formatTime(timeLeft)}
         </h1>
 
         {/* Session length input */}
-        <div style={{ marginBottom: "0.5rem", textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: "0.9rem",
-              marginBottom: "0.25rem",
-              color: "var(--color-text)",
-            }}
-          >
+        <Form.Group className="mb-2 text-center">
+          <Form.Label style={{ fontSize: "0.9rem", color: "var(--color-text)" }}>
             Session length (minutes)
-          </div>
+          </Form.Label>
           <Form.Control
             type="number"
             min={1}
             value={minutesInput}
             onChange={handleMinutesChange}
-            style={{ maxWidth: "120px", margin: "0 auto", color: "var(--color-text-on-light)", backgroundColor: "var(--color-secondary)" }}
+            className="mx-auto"
+            style={{ maxWidth: "120px", color: "var(--color-text-on-light)", backgroundColor: "var(--color-secondary)" }}
           />
           <small style={{ color: "var(--color-text-muted)" }}>
             snapped to nearest 30 seconds
           </small>
-        </div>
+        </Form.Group>
 
         <div>
           {isRunning ? (
-            <Button
-              variant="danger"
-              onClick={handleStop}
-              style={{ fontSize: "1.5rem", marginRight: "1rem" }}
-            >
+            <Button variant="danger" onClick={handleStop} className="me-3" style={{ fontSize: "1.5rem" }}>
               Stop
             </Button>
           ) : (
-            <Button
-              variant="success"
-              onClick={handleStart}
-              style={{ fontSize: "1.5rem", marginRight: "1rem" }}
-              disabled={timeLeft === 0}
-            >
+            <Button variant="success" onClick={handleStart} className="me-3" style={{ fontSize: "1.5rem" }} disabled={timeLeft === 0}>
               Start
             </Button>
           )}
 
-          <Button
-            variant="secondary"
-            onClick={handleReset}
-            style={{ fontSize: "1.5rem" }}
-          >
+          <Button variant="secondary" onClick={handleReset} style={{ fontSize: "1.5rem" }}>
             Reset
           </Button>
         </div>
       </div>
 
       {/* Right side: track visualizer */}
-      <div
-        style={{
-          flex: 1,
-          background: "var(--color-background)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "1.5rem",
-        }}
-      >
+      <div className="flex-grow-1 d-flex justify-content-center align-items-center p-4" style={{ background: "var(--color-background)" }}>
         <StudyTrack
           totalTimeSec={totalTimeSec}
           timeLeft={timeLeft}

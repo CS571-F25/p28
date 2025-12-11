@@ -90,49 +90,30 @@ export default function Calendar({
     d1.getDate() === d2.getDate();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4, ...style }}>
+    <div className="d-flex flex-column gap-1" style={style}>
       {/* Weekday header row */}
-      <div
-        style={{
+      <div className="mb-1 small" style={{
           display: "grid",
           gridTemplateColumns: "repeat(7, 1fr)",
           gap: 4,
-          fontSize: 11,
-          color: "var(--color-text-muted)",
-          marginBottom: 4,
-        }}
-      >
+          color: "var(--color-text-muted)"
+        }}>
         {weekdayLabels.map((label, idx) => (
-          <div
-            key={`${label}-${idx}`}
-            style={{
-              textAlign: "center",
-            }}
-          >
+          <div key={`${label}-${idx}`} className="text-center">
             {label}
           </div>
         ))}
       </div>
 
       {/* Days grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: 4,
-        }}
-      >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
         {rows.map((row, rowIndex) =>
           row.map((cellDate, colIndex) => {
             if (!cellDate) {
               return (
-                <div
-                  key={`empty-${rowIndex}-${colIndex}`}
-                  style={{
-                    width: "100%",
+                <div key={`empty-${rowIndex}-${colIndex}`} className="w-100 rounded" style={{
                     paddingTop: "100%",
-                    borderRadius: 4,
-                    background: "transparent",
+                    background: "transparent"
                   }}
                 />
               );
@@ -150,14 +131,11 @@ export default function Calendar({
                 key={iso}
                 type="button"
                 onClick={() => onSelectDate(new Date(cellDate))}
+                className="position-relative w-100 rounded border"
                 style={{
-                  position: "relative",
-                  width: "100%",
                   paddingTop: "100%", // square
-                  borderRadius: 4,
-                  border: isSelected
-                    ? "2px solid var(--color-primary)"
-                    : "1px solid var(--color-border-light)",
+                  borderColor: isSelected ? "var(--color-primary)" : "var(--color-border-light)",
+                  borderWidth: isSelected ? 2 : 1,
                   background: shade.bg,
                   opacity: shade.opacity,
                   cursor: "pointer",
@@ -165,29 +143,23 @@ export default function Calendar({
                 }}
               >
                 {/* Day number */}
-                <div
-                  style={{
-                    position: "absolute",
+                <div className="position-absolute" style={{
                     top: 2,
                     left: 3,
                     fontSize: 10,
                     color: count ? "var(--color-text)" : "var(--color-text-muted)",
                     textShadow: count ? "0 0 2px rgba(0,0,0,0.6)" : "none",
-                  }}
-                >
+                  }}>
                   {cellDate.getDate()}
                 </div>
 
                 {/* Today dot */}
                 {isToday && (
-                  <div
-                    style={{
-                      position: "absolute",
+                  <div className="position-absolute rounded-circle" style={{
                       bottom: 3,
                       right: 3,
                       width: 6,
                       height: 6,
-                      borderRadius: "999px",
                       background: "var(--color-success)",
                       boxShadow: "0 0 4px var(--color-success)",
                     }}

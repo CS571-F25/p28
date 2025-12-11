@@ -4,6 +4,7 @@ import TaskCard from "../../TaskCard";
 import { useAuth } from "../../../contexts/AuthContext";
 import paintBucketIcon from "../../../assets/paint-bucket.svg";
 import trashIcon from "../../../assets/trash.svg";
+import pencilIcon from "../../../assets/pencil.svg";
 
 export default function HomePage() {
   const auth = useAuth();
@@ -13,11 +14,12 @@ export default function HomePage() {
   const [openColorPickerId, setOpenColorPickerId] = useState(null);
   const [editingTitleTabId, setEditingTitleTabId] = useState(null);
   const [addingTaskToTabId, setAddingTaskToTabId] = useState(null);
+  const [editingTaskId, setEditingTaskId] = useState(null);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
     dueDate: "",
-    color: "#992800",
+    color: "#8B4513",
   });
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function HomePage() {
       description: newTask.description,
       dueDate: newTask.dueDate,
       status: addingTaskToTabId,
-      color: newTask.color || "#992800",
+      color: newTask.color || "#8B4513",
     };
 
     const updated = auth.addTask(task);
@@ -90,7 +92,7 @@ export default function HomePage() {
       title: "",
       description: "",
       dueDate: "",
-      color: "#992800",
+      color: "#8B4513",
     });
     setAddingTaskToTabId(null);
   };
@@ -108,6 +110,53 @@ export default function HomePage() {
     if (idx === -1) return;
     const updated = auth.deleteTask(idx);
     setTasks(updated);
+  };
+
+  const handleEditTask = (id) => {
+    const task = tasks.find((t) => t.id === id);
+    if (task) {
+      setNewTask({
+        title: task.title,
+        description: task.description || "",
+        dueDate: task.dueDate || "",
+        color: task.color || "#8B4513",
+      });
+      setEditingTaskId(id);
+      setAddingTaskToTabId(task.status);
+    }
+  };
+
+  const handleSaveEditedTask = () => {
+    if (!newTask.title.trim()) return;
+    if (!auth.user) return;
+    if (!editingTaskId) return;
+
+    const updated = auth.updateTaskById(editingTaskId, {
+      title: newTask.title,
+      description: newTask.description,
+      dueDate: newTask.dueDate,
+      color: newTask.color,
+    });
+    setTasks(updated);
+    setNewTask({
+      title: "",
+      description: "",
+      dueDate: "",
+      color: "#8B4513",
+    });
+    setEditingTaskId(null);
+    setAddingTaskToTabId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setNewTask({
+      title: "",
+      description: "",
+      dueDate: "",
+      color: "#8B4513",
+    });
+    setEditingTaskId(null);
+    setAddingTaskToTabId(null);
   };
 
   const handleAddTaskToStudy = (id) => {
@@ -134,18 +183,18 @@ export default function HomePage() {
   const byStatus = (status) => tasks.filter((t) => t.status === status);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "2.5rem" }}>
+    <div className="d-flex flex-column gap-4 p-4">
       {/* Tabs area */}
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: "100%", maxWidth: 1200, background: "var(--color-primary)", border: "1px solid var(--color-border)", padding: "1.5rem", borderRadius: 8 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ margin: 0, color: "var(--color-text)" }}>Tabs</h2>
-            <Button size="sm" onClick={handleAddTab}>Create Tab</Button>
+      <div className="d-flex justify-content-center">
+        <div className="w-100 border rounded p-3" style={{ maxWidth: 1200, background: "var(--color-primary)", borderColor: "var(--color-border)" }}>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h2 className="m-0" style={{ color: "var(--color-text)" }}>Tabs</h2>
+            <Button size="sm" onClick={handleAddTab}>+ Create Tab</Button>
           </div>
 
           {/* No tabs message */}
           {(!columns || columns.length === 0) && (
-            <div style={{ textAlign: "center", padding: "2rem", color: "var(--color-text)", fontSize: "1.1rem" }}>
+            <div className="text-center p-4" style={{ color: "var(--color-text)", fontSize: "1.1rem" }}>
               Create a tab to start!
             </div>
           )}
@@ -158,20 +207,13 @@ export default function HomePage() {
                   key={col.id}
                   onDragOver={allowDrop}
                   onDrop={(e) => handleDrop(e, col.id)}
-                  style={{
-                    background: "var(--color-secondary)",
-                    borderTop: `${col.color} solid 6px`,
-                    borderRadius: 8,
-                    padding: "1rem",
-                    minHeight: 300,
-                    display: "flex",
-                    flexDirection: "column"
-                  }}
+                  className="rounded p-3 d-flex flex-column"
+                  style={{background: "var(--color-secondary)",borderTop: `${col.color} solid 6px`,minHeight: 300}}
                 >
                   {/* Tab header with title and color picker */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 12, position: "relative" }}>
+                  <div className="d-flex align-items-center justify-content-between gap-2 mb-3 position-relative">
                     {editingTitleTabId === col.id ? (
-                      <input
+                      <Form.Control
                         autoFocus
                         value={col.title}
                         onChange={(e) => {
@@ -183,31 +225,24 @@ export default function HomePage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter") setEditingTitleTabId(null);
                         }}
+                        className="flex-grow-1 fw-bold"
+                        aria-label="Edit tab title"
                         style={{
-                          flex: 1,
-                          textAlign: "left",
                           border: "1px solid var(--color-border-light)",
                           background: "transparent",
                           fontSize: 16,
-                          fontWeight: 600,
-                          padding: "4px 8px",
-                          borderRadius: 4,
                           color: "var(--color-text-on-light)",
                         }}
                       />
                     ) : (
                       <h3
                         onClick={() => setEditingTitleTabId(col.id)}
+                        className="flex-grow-1 m-0 fw-bold rounded user-select-none"
                         style={{
-                          flex: 1,
-                          margin: 0,
                           cursor: "pointer",
                           padding: "4px 8px",
-                          borderRadius: 4,
-                          userSelect: "none",
                           color: "var(--color-text-on-light)",
-                          fontSize: 16,
-                          fontWeight: 600
+                          fontSize: 16
                         }}
                         title="Click to edit"
                       >
@@ -216,40 +251,30 @@ export default function HomePage() {
                     )}
                     <button
                       onClick={() => setOpenColorPickerId(openColorPickerId === col.id ? null : col.id)}
+                      className="rounded border-0 d-flex align-items-center justify-content-center"
                       style={{
                         width: 32,
                         height: 32,
-                        borderRadius: 4,
                         background: "transparent",
-                        border: "none",
                         cursor: 'pointer',
-                        padding: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
+                        padding: 0
                       }}
                       title="Click to change color"
                     >
                       <img src={paintBucketIcon} alt="color picker" style={{ width: 20, height: 20 }} />
                     </button>
                     {openColorPickerId === col.id && (
-                      <div style={{
-                        position: "absolute",
+                      <div className="position-absolute border rounded p-2 d-flex flex-wrap gap-2" style={{
                         top: "100%",
                         right: 0,
                         marginTop: 8,
                         background: "var(--color-secondary)",
-                        border: "1px solid var(--color-border-light)",
-                        borderRadius: 6,
-                        padding: 8,
+                        borderColor: "var(--color-border-light)",
                         boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                         zIndex: 1000,
-                        display: "flex",
-                        gap: 6,
-                        flexWrap: "wrap",
                         width: 180
                       }}>
-                        {['#992800', '#ffaf00', '#fc7942', '#99bd3c', '#4577b8', '#8a50d8', '#ee5091', '#483e62', '#978131', '#5c5c57'].map((color) => (
+                        {['#8B4513', '#CC8800', '#D2691E', '#6B8E23', '#2E5C8A', '#6B4C9A', '#C74375', '#483e62', '#8B7500', '#5c5c57'].map((color) => (
                           <button
                             key={color}
                             onClick={() => {
@@ -258,10 +283,10 @@ export default function HomePage() {
                               auth.setColumns(updated);
                               setOpenColorPickerId(null);
                             }}
+                            className="rounded"
                             style={{
                               width: 24,
                               height: 24,
-                              borderRadius: 3,
                               background: color,
                               border: col.color === color ? '3px solid #000' : '1px solid var(--color-border-light)',
                               cursor: 'pointer',
@@ -278,7 +303,7 @@ export default function HomePage() {
                   </div>
 
                   {/* Tasks list */}
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem", overflowY: "auto", marginBottom: 12 }}>
+                  <div className="flex-grow-1 d-flex flex-column gap-2 overflow-auto mb-3">
                     {byStatus(col.id).map((task) => {
                       const isInStudySession = studySessionTasks.some((st) => st.id === task.id);
                       return (
@@ -290,6 +315,7 @@ export default function HomePage() {
                           onDelete={() => handleDeleteTask(task.id)}
                           onComplete={() => handleCompleteTask(task.id)}
                           onAddToStudy={() => handleAddTaskToStudy(task.id)}
+                          onEdit={() => handleEditTask(task.id)}
                           isInStudySession={isInStudySession}
                           draggable={true}
                           onDragStart={(e) => e.dataTransfer.setData("text/plain", String(task.id))}
@@ -299,51 +325,73 @@ export default function HomePage() {
                     })}
                   </div>
 
-                  {/* Add Task form for this tab */}
+                  {/* Add/Edit Task form for this tab */}
                   {addingTaskToTabId === col.id ? (
-                    <div style={{ borderTop: "1px solid var(--color-border-light)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-                      <Form.Control
-                        type="text"
-                        placeholder="Task title"
-                        value={newTask.title}
-                        onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                      />
-                      <Form.Control
-                        type="text"
-                        placeholder="Description (optional)"
-                        value={newTask.description}
-                        onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                      />
-                      <Form.Control
-                        type="date"
-                        value={newTask.dueDate}
-                        onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                      />
-                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                        {['#992800', '#ffaf00', '#fc7942', '#99bd3c', '#4577b8', '#8a50d8', '#ee5091', '#483e62', '#978131', '#5c5c57'].map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => setNewTask({ ...newTask, color })}
-                            style={{
-                              width: 24,
-                              height: 24,
-                              borderRadius: 3,
-                              background: color,
-                              border: newTask.color === color ? '3px solid #000' : '1px solid var(--color-border-light)',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            title={color}
-                          />
-                        ))}
+                    <div className="border-top pt-3 d-flex flex-column gap-2" style={{ borderColor: "var(--color-border-light)" }}>
+                      <Form.Group>
+                        <Form.Label className="small">Task Title</Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Task title"
+                          value={newTask.title}
+                          onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                        />
+                      </Form.Group>
+                      <Form.Group>
+                        <Form.Label className="small">Description (optional)</Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Description (optional)"
+                          value={newTask.description}
+                          onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                        />
+                      </Form.Group>
+                      <Form.Group>
+                        <Form.Label className="small">Due Date</Form.Label>
+                        <Form.Control
+                          type="date"
+                          value={newTask.dueDate}
+                          onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                        />
+                      </Form.Group>
+                      <div>
+                        <div className="small mb-1">Color</div>
+                        <div className="d-flex gap-1 flex-wrap">
+                          {['#8B4513', '#CC8800', '#D2691E', '#6B8E23', '#2E5C8A', '#6B4C9A', '#C74375', '#483e62', '#8B7500', '#5c5c57'].map((color) => (
+                            <button
+                              key={color}
+                              onClick={() => setNewTask({ ...newTask, color })}
+                              className="rounded"
+                              aria-label={`Select color ${color}`}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                background: color,
+                                border: newTask.color === color ? '3px solid #000' : '1px solid var(--color-border-light)',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
                       </div>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <Button size="sm" variant="success" onClick={handleAddTask}>Add</Button>
-                        <Button size="sm" variant="outline-secondary" onClick={() => setAddingTaskToTabId(null)}>Cancel</Button>
+                      <div className="d-flex gap-2">
+                        {editingTaskId ? (
+                          <>
+                            <Button size="sm" variant="success" onClick={handleSaveEditedTask}>Save</Button>
+                            <Button size="sm" variant="outline-secondary" onClick={handleCancelEdit}>Cancel</Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button size="sm" variant="success" onClick={handleAddTask}>Add</Button>
+                            <Button size="sm" variant="outline-secondary" onClick={() => setAddingTaskToTabId(null)}>Cancel</Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   ) : (
-                    <Button size="sm" variant="outline-primary" onClick={() => setAddingTaskToTabId(col.id)} style={{ width: "100%" }}>
+                    <Button size="sm" variant="outline-primary" onClick={() => setAddingTaskToTabId(col.id)} className="w-100">
                       + Add Task
                     </Button>
                   )}

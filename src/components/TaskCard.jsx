@@ -3,6 +3,7 @@ import { Card, Button } from "react-bootstrap";
 import checkCircleIcon from "../assets/check-circle.svg";
 import plusCircleIcon from "../assets/plus-circle.svg";
 import trashIcon from "../assets/trash.svg";
+import pencilIcon from "../assets/pencil.svg";
 
 export default function TaskCard({
   title,
@@ -10,6 +11,7 @@ export default function TaskCard({
   dueDate,
   onDelete,
   onComplete,
+  onEdit,
   draggable,
   onDragStart,
   color,
@@ -64,35 +66,17 @@ export default function TaskCard({
       onMouseEnter={() => (compact || tiny) && setMenuOpen(true)}
       onMouseLeave={() => (compact || tiny) && setMenuOpen(false)}
     >
-      <Card.Body style={{ ...bodyStyle, position: "relative", display: "flex", flexDirection: "column" }}>
+      <Card.Body className="position-relative d-flex flex-column" style={bodyStyle}>
         {/* Top section: title, description, dueDate */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
+        <div className="flex-grow-1" style={{ minWidth: 0 }}>
+          <div className="d-flex align-items-center gap-2">
             {/* Left side: color flag + title */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flex: 1,
-                minWidth: 0,
-                gap: 6,
-              }}
-            >
+            <div className="d-flex align-items-center flex-grow-1 gap-2" style={{ minWidth: 0 }}>
               {color && (
-                <span
-                  aria-hidden="true"
-                  style={{
+                <span aria-hidden="true" className="rounded-circle flex-shrink-0" style={{
                     width: tiny ? 8 : 10,
                     height: tiny ? 8 : 10,
-                    borderRadius: 999,
                     backgroundColor: color,
-                    flexShrink: 0,
                     boxShadow: "0 0 2px rgba(0,0,0,0.25)",
                   }}
                 />
@@ -102,42 +86,22 @@ export default function TaskCard({
           </div>
 
           {showDescription && description && !compact && !tiny && (
-            <div
-              style={{
-                marginTop: "0.25rem",
-                fontSize: "0.9rem",
-                color: "var(--color-text-muted)",
-              }}
-            >
+            <div className="mt-1 small" style={{ color: "var(--color-text-muted)" }}>
               {description}
             </div>
           )}
 
           {dueDate && !tiny && (
-            <div
-              style={{
-                marginTop: "0.12rem",
-                fontSize: "0.8rem",
-                color: "var(--color-text-muted)",
-              }}
-            >
+            <div className="small" style={{ marginTop: "0.12rem", color: "var(--color-text-muted)" }}>
               Due: {dueDate}
             </div>
           )}
         </div>
 
         {/* Bottom section: action buttons */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 6,
-            marginTop: "0.5rem",
-          }}
-        >
+        <div className="d-flex justify-content-end align-items-center gap-2 mt-2">
           {useMenu ? (
-            <div style={{ position: "relative" }}>
+            <div className="position-relative">
               <button
                 aria-label="open menu"
                 style={menuBtnStyle}
@@ -146,37 +110,43 @@ export default function TaskCard({
                 ⋯
               </button>
               {menuOpen && (
-                <div
-                  style={{
-                    position: "absolute",
+                <div className="position-absolute border rounded" style={{
                     right: 0,
                     top: "100%",
                     marginTop: 6,
                     background: "var(--color-secondary)",
-                    border: "1px solid var(--color-border-light)",
-                    borderRadius: 6,
+                    borderColor: "var(--color-border-light)",
                     boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                    zIndex: 1000,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      minWidth: 120,
-                    }}
-                  >
+                    zIndex: 1000
+                  }}>
+                  <div className="d-flex flex-column" style={{ minWidth: 120 }}>
+                    {onEdit && (
+                      <button
+                        onClick={() => {
+                          onEdit();
+                          setMenuOpen(false);
+                        }}
+                        className="border-0 bg-transparent text-start"
+                        style={{
+                          padding: tiny ? "2px 6px" : "8px 12px",
+                          cursor: "pointer",
+                          fontSize: tiny ? "0.75rem" : undefined,
+                          color: "var(--color-text-on-light)",
+                        }}
+                        title="Edit task"
+                      >
+                        Edit
+                      </button>
+                    )}
                     {onComplete && (
                       <button
                         onClick={() => {
                           onComplete();
                           setMenuOpen(false);
                         }}
+                        className="border-0 bg-transparent text-start"
                         style={{
                           padding: tiny ? "2px 6px" : "8px 12px",
-                          border: "none",
-                          background: "transparent",
-                          textAlign: "left",
                           cursor: "pointer",
                           fontSize: tiny ? "0.75rem" : undefined,
                           color: "var(--color-text-on-light)",
@@ -195,11 +165,9 @@ export default function TaskCard({
                           }
                         }}
                         disabled={isInStudySession}
+                        className="border-0 bg-transparent text-start"
                         style={{
                           padding: tiny ? "2px 6px" : "8px 12px",
-                          border: "none",
-                          background: "transparent",
-                          textAlign: "left",
                           cursor: isInStudySession ? "not-allowed" : "pointer",
                           fontSize: tiny ? "0.75rem" : undefined,
                           opacity: isInStudySession ? 0.5 : 1,
@@ -216,11 +184,9 @@ export default function TaskCard({
                           onDelete();
                           setMenuOpen(false);
                         }}
+                        className="border-0 bg-transparent text-start"
                         style={{
                           padding: tiny ? "2px 6px" : "8px 12px",
-                          border: "none",
-                          background: "transparent",
-                          textAlign: "left",
                           color: "var(--color-danger)",
                           cursor: "pointer",
                           fontSize: tiny ? "0.75rem" : undefined,
@@ -235,7 +201,18 @@ export default function TaskCard({
               )}
             </div>
           ) : (
-            <div style={{ display: "flex", gap: 8 }}>
+            <div className="d-flex gap-2">
+              {onEdit && (
+                <Button
+                  variant="primary"
+                  size={tiny ? "sm" : "sm"}
+                  onClick={onEdit}
+                  style={{ padding: tiny ? "2px 6px" : "4px 8px" }}
+                  title="Edit task"
+                >
+                  <img src={pencilIcon} alt="edit" style={{ width: 16, height: 16 }} />
+                </Button>
+              )}
               {onComplete && (
                 <Button
                   variant="success"

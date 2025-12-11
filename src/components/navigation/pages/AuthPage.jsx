@@ -32,10 +32,10 @@ export default function AuthPage() {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
-      <Card style={{ width: 400, padding: "1.5rem", background: "var(--color-secondary)" }}>
+    <div className="d-flex justify-content-center p-4">
+      <Card className="p-4" style={{ width: 400, background: "var(--color-secondary)" }}>
         <Card.Body>
-          <h3 style={{ textAlign: "center", color: "var(--color-text-on-light)" }}>
+          <h3 className="text-center" style={{ color: "var(--color-text-on-light)" }}>
             {mode === "login" ? "Log In" : "Create Account"}
           </h3>
 
@@ -57,12 +57,12 @@ export default function AuthPage() {
               </Form.Group>
             )}
 
-            {error && <div style={{ color: "var(--color-danger)", marginBottom: "0.5rem" }}>{error}</div>}
+            {error && <div className="mb-2" style={{ color: "var(--color-danger)" }}>{error}</div>}
 
-            <Button type="submit" style={{ width: "100%" }}>{mode === "login" ? "Log In" : "Register"}</Button>
+            <Button type="submit" className="w-100">{mode === "login" ? "Log In" : "Register"}</Button>
           </Form>
 
-          <div style={{ marginTop: "0.75rem", textAlign: "center" }}>
+          <div className="mt-3 text-center">
             {mode === "login" ? (
               <>
                 <span style={{ color: "var(--color-text-on-light)" }}>Don't have an account? </span>

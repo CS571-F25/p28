@@ -87,34 +87,16 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
   const lapProgress = Math.min(1, Math.max(0, lapTime / LAP_DURATION));
 
   return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: "500px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-      }}
-    >
+    <div className="w-100 d-flex flex-column gap-3" style={{ maxWidth: "500px" }}>
       {/* Session + lap info */}
       <div>
-        <div
-          style={{
-            fontSize: "0.9rem",
-            marginBottom: "0.25rem",
-            color: "var(--color-text-muted)",
-          }}
-        >
+        <div className="small mb-1" style={{ color: "var(--color-text-muted)" }}>
           Session progress
         </div>
-        <div
-          style={{
+        <div className="rounded-pill overflow-hidden" style={{
             height: "8px",
-            borderRadius: "999px",
-            background: "var(--color-background-alt)",
-            overflow: "hidden",
-          }}
-        >
+            background: "var(--color-background-alt)"
+          }}>
           <div
             style={{
               width: `${Math.min(1, Math.max(0, sessionProgress)) * 100}%`,
@@ -124,39 +106,21 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
           />
         </div>
 
-        <div
-          style={{
-            marginTop: "0.5rem",
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "0.85rem",
-            color: "var(--color-text-muted)",
-          }}
-        >
+        <div className="mt-2 d-flex justify-content-between small" style={{ color: "var(--color-text-muted)" }}>
           <span>
             Lap {currentLap} / {totalLaps}
           </span>
           <span>{Math.max(0, lapsCompleted)} completed</span>
         </div>
 
-        <div style={{ marginTop: "0.5rem" }}>
-          <div
-            style={{
-              fontSize: "0.8rem",
-              marginBottom: "0.2rem",
-              color: "var(--color-text-muted)",
-            }}
-          >
+        <div className="mt-2">
+          <div className="small mb-1" style={{ color: "var(--color-text-muted)" }}>
             Current lap
           </div>
-          <div
-            style={{
+          <div className="rounded-pill overflow-hidden" style={{
               height: "6px",
-              borderRadius: "999px",
-              background: "var(--color-background-alt)",
-              overflow: "hidden",
-            }}
-          >
+              background: "var(--color-background-alt)"
+            }}>
             <div
               style={{
                 width: `${lapProgress * 100}%`,
@@ -169,15 +133,7 @@ export default function StudyTrack({ totalTimeSec, timeLeft, isRunning }) {
       </div>
 
       {/* Oval track */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          paddingTop: "0.5rem",
-        }}
-      >
+      <div className="flex-grow-1 d-flex justify-content-center align-items-center pt-2">
         <OvalTrack
           lapProgress={lapProgress}
           currentLap={currentLap}

@@ -102,50 +102,29 @@ export default function WeeklyCalendar() {
   })();
 
   return (
-    <Container fluid style={{ padding: 0, minHeight: "100vh" }}>
-      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <Container fluid className="p-0" style={{ minHeight: "100vh" }}>
+      <div className="d-flex flex-column h-100">
         {/* Header */}
-        <div
-          style={{
-            borderBottom: "1px solid var(--color-border)",
-            padding: 12,
+        <div className="border-bottom p-3 d-flex justify-content-between align-items-baseline" style={{
             background: "var(--color-background-alt)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-          }}
-        >
+            borderColor: "var(--color-border)"
+          }}>
           <div>
-            <h4 style={{ margin: 0, color: "var(--color-primary)" }}>Weekly Calendar</h4>
-            <div style={{ fontSize: 13, color: "var(--color-text-muted)" }}>{weekLabel}</div>
+            <h4 className="m-0" style={{ color: "var(--color-primary)" }}>Weekly Calendar</h4>
+            <div className="small" style={{ color: "var(--color-text-muted)" }}>{weekLabel}</div>
           </div>
-          <div style={{ fontSize: 13, color: "var(--color-text-muted)" }}>{monthLabel}</div>
+          <div className="small" style={{ color: "var(--color-text-muted)" }}>{monthLabel}</div>
         </div>
 
         {/* Content: left (month grid), right (week tasks) */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            padding: 12,
-            gap: 16,
-            overflow: "hidden",
-          }}
-        >
+        <div className="flex-grow-1 d-flex p-3 gap-3 overflow-hidden">
           {/* Left: Month grid */}
-          <div
-            style={{
-              flex: 1,
+          <div className="flex-grow-1 border rounded p-3 d-flex flex-column" style={{
               minWidth: 0,
               background: "var(--color-background)",
-              border: "1px solid var(--color-border-light)",
-              borderRadius: 8,
-              padding: 12,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+              borderColor: "var(--color-border-light)"
+            }}>
+            <div className="fw-bold mb-2" style={{ fontSize: 14 }}>
               This month
             </div>
             <MonthCalendarGrid
@@ -156,62 +135,29 @@ export default function WeeklyCalendar() {
           </div>
 
           {/* Right: Week tasks (scrollable) */}
-          <div
-            style={{
-              flex: 1,
+          <div className="flex-grow-1 border rounded p-3 d-flex flex-column" style={{
               minWidth: 0,
               background: "var(--color-background)",
-              border: "1px solid var(--color-border-light)",
-              borderRadius: 8,
-              padding: 12,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+              borderColor: "var(--color-border-light)"
+            }}>
+            <div className="fw-bold mb-2" style={{ fontSize: 14 }}>
               Tasks this week
             </div>
-            <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
+            <div className="flex-grow-1 overflow-auto pe-1">
               {weekInfo.days.map((d) => {
                 const iso = toISODate(d);
                 const dayTasks = tasksByDate[iso] || [];
                 return (
-                  <div
-                    key={iso}
-                    style={{
-                      marginBottom: 12,
-                      borderBottom: "1px dashed var(--color-border-light)",
-                      paddingBottom: 8,
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: "var(--color-text-muted)",
-                        marginBottom: 4,
-                      }}
-                    >
+                  <div key={iso} className="mb-3 pb-2" style={{ borderBottom: "1px dashed var(--color-border-light)" }}>
+                    <div className="fw-bold mb-1 small" style={{ color: "var(--color-text-muted)" }}>
                       {formatDayHeading(d)}
                     </div>
                     {dayTasks.length === 0 ? (
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "var(--color-text-muted)",
-                          fontStyle: "italic",
-                        }}
-                      >
+                      <div className="fst-italic small" style={{ color: "var(--color-text-muted)" }}>
                         No tasks
                       </div>
                     ) : (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 6,
-                        }}
-                      >
+                      <div className="d-flex flex-column gap-2">
                         {dayTasks.map((task) => {
                           const cls = getClassForTask(task);
                           const classColor =
@@ -325,38 +271,23 @@ function MonthCalendarGrid({ tasks, selectedDate, onSelectDate }) {
     d1.getDate() === d2.getDate();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+    <div className="d-flex flex-column gap-1">
       {/* Weekday header row */}
-      <div
-        style={{
+      <div className="mb-1 small" style={{
           display: "grid",
           gridTemplateColumns: "repeat(7, 1fr)",
           gap: 4,
-          fontSize: 11,
-          color: "var(--color-text)",
-          marginBottom: 4,
-        }}
-      >
+          color: "var(--color-text)"
+        }}>
         {weekdayLabels.map((label) => (
-          <div
-            key={label}
-            style={{
-              textAlign: "center",
-            }}
-          >
+          <div key={label} className="text-center">
             {label}
           </div>
         ))}
       </div>
 
       {/* Days grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: 4,
-        }}
-      >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
         {rows.map((row, rowIndex) =>
           row.map((cellDate, colIndex) => {
             if (!cellDate) {
@@ -385,14 +316,12 @@ function MonthCalendarGrid({ tasks, selectedDate, onSelectDate }) {
                 key={iso}
                 type="button"
                 onClick={() => onSelectDate(new Date(cellDate))}
+                className="position-relative rounded border"
                 style={{
-                  position: "relative",
                   width: "100%",
                   paddingTop: "100%", // square
-                  borderRadius: 4,
-                  border: isSelected
-                    ? "2px solid var(--color-primary)"
-                    : "1px solid var(--color-border-light)",
+                  borderColor: isSelected ? "var(--color-primary)" : "var(--color-border-light)",
+                  borderWidth: isSelected ? 2 : 1,
                   background: shade.bg,
                   opacity: shade.opacity,
                   cursor: "pointer",
@@ -400,29 +329,23 @@ function MonthCalendarGrid({ tasks, selectedDate, onSelectDate }) {
                 }}
               >
                 {/* Day number */}
-                <div
-                  style={{
-                    position: "absolute",
+                <div className="position-absolute" style={{
                     top: 2,
                     left: 3,
                     fontSize: 10,
                     color: count ? "var(--color-text)" : "var(--color-text-muted)",
                     textShadow: count ? "0 0 2px rgba(0,0,0,0.6)" : "none",
-                  }}
-                >
+                  }}>
                   {cellDate.getDate()}
                 </div>
 
                 {/* Today dot */}
                 {isToday && (
-                  <div
-                    style={{
-                      position: "absolute",
+                  <div className="position-absolute rounded-circle" style={{
                       bottom: 3,
                       right: 3,
                       width: 6,
                       height: 6,
-                      borderRadius: "999px",
                       background: "var(--color-success)",
                       boxShadow: "0 0 4px var(--color-success)",
                     }}

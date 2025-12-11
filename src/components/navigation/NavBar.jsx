@@ -51,7 +51,7 @@ export default function NavBar() {
           </Nav.Link>          
         </Nav>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div className="d-flex align-items-center gap-3">
           {auth.user ? (
             <>
               <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
